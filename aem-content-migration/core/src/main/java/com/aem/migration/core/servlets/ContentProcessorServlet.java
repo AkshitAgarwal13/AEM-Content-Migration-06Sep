@@ -7,7 +7,6 @@ import java.util.List;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -19,8 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.services.ContentProcessorService;
-import com.aem.migration.core.services.impl.ContentProcessorServiceImpl;
-import com.aem.migration.core.wordpress.dto.WPPageList;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
 
 @Component(service = { Servlet.class }, property = { "sling.servlet.methods=get",

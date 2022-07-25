@@ -30,6 +30,12 @@ public class WPComponent {
 	/** The component type. */
 	private String componentType;
 	
+	/** The source CMSDAM root path. */
+	private String sourceCMSDAMRootPath;
+
+	/** The aem DAM root path. */
+	private String aemDAMRootPath;
+	
 	/**
 	 * Gets the loading.
 	 *
@@ -190,6 +196,42 @@ public class WPComponent {
 	 */
 	public void setImgCaption(String imgCaption) {
 		this.imgCaption = imgCaption;
+	}
+	
+	/**
+	 * Gets the source CMSDAM root path.
+	 *
+	 * @return the source CMSDAM root path
+	 */
+	public String getSourceCMSDAMRootPath() {
+		return sourceCMSDAMRootPath;
+	}
+
+	/**
+	 * Sets the source CMSDAM root path.
+	 *
+	 * @param sourceCMSDAMRootPath the new source CMSDAM root path
+	 */
+	public void setSourceCMSDAMRootPath(String sourceCMSDAMRootPath) {
+		this.sourceCMSDAMRootPath = sourceCMSDAMRootPath;
+	}
+
+	/**
+	 * Gets the aem DAM root path.
+	 *
+	 * @return the aem DAM root path
+	 */
+	public String getAemDAMRootPath() {
+		return aemDAMRootPath;
+	}
+
+	/**
+	 * Sets the aem DAM root path.
+	 *
+	 * @param aemDAMRootPath the new aem DAM root path
+	 */
+	public void setAemDAMRootPath(String aemDAMRootPath) {
+		this.aemDAMRootPath = aemDAMRootPath;
 	}
 
 }

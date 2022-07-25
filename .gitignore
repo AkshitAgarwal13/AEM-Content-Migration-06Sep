@@ -1,0 +1,8 @@
+aem-content-migration/all/.gitignore
+aem-content-migration/core/.gitignore
+aem-content-migration/it.tests/.gitignore
+aem-content-migration/ui.apps/.gitignore
+aem-content-migration/ui.apps.structure/.gitignore
+aem-content-migration/ui.config/.gitignore
+aem-content-migration/ui.content/.gitignore
+aem-content-migration/ui.tests/.gitignore

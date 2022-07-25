@@ -88,6 +88,18 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 				description = "List of the HTML elements to parse and their corresponding component type(in AEM). For example - <figure> element is mapped to image component in AEM. Applicable to CMSs storing content as HTML markup, ex - Wordpress"
 		)
 		String[] htmlElementstoParseList() default "figure=image";
+		
+		@AttributeDefinition(
+				name = "DAM Assets Root Path (Source CMS) ",
+				description = "Root Path of the DAM folder in source CMS. This will be updated with the AEM DAM path."
+		)
+		String sourceDAMRootPath() default "http://localhost:8080/wordpress_sample_db/wp-content";
+		
+		@AttributeDefinition(
+				name = "DAM Assets Root Path (Target/AEM CMS) ",
+				description = "Root Path of the AEM DAM folder."
+		)
+		String aemDAMRootPath() default "/content/dam/migration";
 
 	}
 
@@ -105,6 +117,12 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 	/** The html elementsto parse list. */
 	private String[] htmlElementstoParseList;
+	
+	/** The source DAM root path. */
+	private String sourceDAMRootPath;
+
+	/** The aem DAM root path. */
+	private String aemDAMRootPath;
 
 	/**
 	 * Gets the source content extract file path.
@@ -155,6 +173,26 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 		return htmlElementstoParseList;
 	}
+	
+	/**
+	 * Gets the source DAM root path.
+	 *
+	 * @return the source DAM root path
+	 */
+	public String getSourceDAMRootPath() {
+
+		return sourceDAMRootPath;
+	}
+
+	/**
+	 * Gets the aem DAM root path.
+	 *
+	 * @return the aem DAM root path
+	 */
+	public String getAemDAMRootPath() {
+
+		return aemDAMRootPath;
+	}
 
 	@Activate
 	protected void activate(Config config) {
@@ -163,6 +201,8 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		this.aemComponentPropertyMapping = config.aemComponentPropertyMapping();
 		this.aemObjToJCRPropMap = config.aemObjToJCRPropMap();
 		this.htmlElementstoParseList = config.htmlElementstoParseList();
+		this.sourceDAMRootPath = config.sourceDAMRootPath();
+		this.aemDAMRootPath = config.aemDAMRootPath();
 		log.info("File path of the source content extract is {}", this.sourceContentExtractFilePath);
 	}
 
@@ -266,6 +306,8 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 					WPComponent component = MigrationUtil.getComponent(element, htmlElementsToAEMComponentMap);
 					if(component != null) {
 
+						component.setAemDAMRootPath(this.aemDAMRootPath);
+						component.setSourceCMSDAMRootPath(this.sourceDAMRootPath);
 						componentsList.add(component);
 						counter++;
 					}

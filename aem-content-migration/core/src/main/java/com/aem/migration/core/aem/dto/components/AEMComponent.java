@@ -1,5 +1,7 @@
 package com.aem.migration.core.aem.dto.components;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.aem.migration.core.wordpress.dto.WPComponent;
 
 /**
@@ -197,7 +199,8 @@ public class AEMComponent {
 		this.jcr_primaryType = "nt:unstructured";
 		this.componentType = wpComponent.getComponentType();
 		this.jcr_title = wpComponent.getImgCaption();
-		this.fileReference = wpComponent.getImgSrc();
+		this.fileReference = StringUtils.isNotBlank(wpComponent.getImgSrc()) ? wpComponent.getImgSrc()
+				.replace(wpComponent.getSourceCMSDAMRootPath(), wpComponent.getAemDAMRootPath()) : StringUtils.EMPTY;
 		this.id = null;
 		this.alt = wpComponent.getAlt();
 		this.linkURL = wpComponent.getSrc();
