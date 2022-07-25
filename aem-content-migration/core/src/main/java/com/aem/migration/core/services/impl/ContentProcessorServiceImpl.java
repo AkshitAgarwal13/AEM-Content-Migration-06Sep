@@ -34,10 +34,10 @@ import com.aem.migration.core.aem.dto.components.AEMComponent;
 import com.aem.migration.core.services.ContentProcessorService;
 import com.aem.migration.core.utils.MigrationUtil;
 import com.aem.migration.core.wordpress.dto.WPComponent;
+import com.aem.migration.core.wordpress.dto.WPPageList;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
 import com.day.cq.dam.api.Asset;
 import com.google.gson.Gson;
-import com.aem.migration.core.wordpress.dto.WPPageList;
 
 @Component(
 	service = { ContentProcessorService.class }
@@ -89,11 +89,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		)
 		String[] htmlElementstoParseList() default "figure=image";
 
-		@AttributeDefinition(
-				name = "HTML Elements and attributes mapping",
-				description = "List of the HTML elements and attributes(comma separated) to read. For example - <figure=src,width.....>. Applicable to CMSs storing content as HTML markup, ex - Wordpress"
-		)
-		String[] htmlElementstoAttributesList() default "figure=src,height,width,alt,loading";
 	}
 
 	/** The source content extract file path. */
