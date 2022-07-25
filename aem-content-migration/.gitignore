@@ -1,3 +1,7 @@
 aem-content-migration/ui.frontend/target/aem-content-migration.ui.frontend-0.0.1-SNAPSHOT.zip
 */target/*
 */node_modules/*
+*/.project
+*/.settings/*
+*/*/.gitignore
+*/.classpath
