@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="OSGI-INF/l10n/com.aem.migration.core.services.impl.ContentProcessorServiceImpl$Config">
+  <OCD id="com.aem.migration.core.services.impl.ContentProcessorServiceImpl$Config" name="Migration - Configuration" description="OSGi Service - Configuration to support migration process.">
+    <AD id="sourceContentExtractFilePath" type="String" name="Content Source File Path (in DAM)" description="Path of the file having the content extract from source CMS." default="/content/dam/migration/single-page-extract.json"/>
+    <AD id="aemComponentPropertyMapping" type="String" cardinality="2147483647" name="AEM Component Name and Properties" description="A mapping of AEM components and associated properties(comma separated)."/>
+    <AD id="sourceCMScomponentPropertyMapping" type="String" cardinality="2147483647" name="Source CMS Component Name and Properties" description="A mapping of source CMS components and associated properties(comma separated)."/>
+    <AD id="aemObjToJCRPropMap" type="String" cardinality="2147483647" name="AEM Object and JCR Property mapping" description="AEM Object and JCR Property mapping. List of properties to replace in AEM page JSON."/>
+    <AD id="htmlElementstoParseList" type="String" cardinality="2147483647" name="HTML Elements to parse" description="List of the HTML elements to parse and their corresponding component type(in AEM). For example - &lt;figure&gt; element is mapped to image component in AEM. Applicable to CMSs storing content as HTML markup, ex - Wordpress" default="figure=image"/>
+    <AD id="htmlElementstoAttributesList" type="String" cardinality="2147483647" name="HTML Elements and attributes mapping" description="List of the HTML elements and attributes(comma separated) to read. For example - &lt;figure=src,width.....&gt;. Applicable to CMSs storing content as HTML markup, ex - Wordpress" default="figure=src\,height\,width\,alt\,loading"/>
+  </OCD>
+  <Designate pid="com.aem.migration.core.services.impl.ContentProcessorServiceImpl">
+    <Object ocdref="com.aem.migration.core.services.impl.ContentProcessorServiceImpl$Config"/>
+  </Designate>
+</metatype:MetaData>
