@@ -339,8 +339,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			sb.append(aemPage.getJcrContent().getJcr_primaryType() + "\"");
 			sb.append(" -F \"jcr:content/jcr:title=");
 			sb.append(aemPage.getJcrContent().getJcr_title() + "\"");
-			sb.append(" -F \"jcr:content/sling:resourceType=migration/components/page\"");
-			sb.append(" http://localhost:4502/content/migration/us/en/new-page-1" + counter);
+			sb.append(" -F \"jcr:content/cq:template=");
+			sb.append(aemPage.getJcrContent().getCq_template() + "\"");
+			sb.append(" -F \"jcr:content/sling:resourceType=");
+			sb.append(aemPage.getJcrContent().getSling_resourceType() + "\"");
+			sb.append(" http://localhost:4502/content/migration/us/en/new-page-" + counter);
 			sb.append(" -F \"jcr:content/root/layout=responsiveGrid\"");
 			sb.append(" -F \"jcr:content/root/sling:resourceType=migration/components/container\"");
 			sb.append(" -F \"jcr:content/root/container/layout=responsiveGrid\"");
