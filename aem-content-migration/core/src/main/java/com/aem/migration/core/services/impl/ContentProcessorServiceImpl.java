@@ -70,13 +70,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		String[] aemComponentPropertyMapping();
 
 		@AttributeDefinition(
-				name = "Source CMS Component Name and Properties",
-				description = "A mapping of source CMS components and associated properties(comma separated).",
-				type = AttributeType.STRING
-		)
-		String[] sourceCMScomponentPropertyMapping();
-
-		@AttributeDefinition(
 				name = "AEM Object and JCR Property mapping",
 				description = "AEM Object and JCR Property mapping. List of properties to replace in AEM page JSON.",
 				type = AttributeType.STRING
@@ -87,7 +80,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 				name = "HTML Elements to parse",
 				description = "List of the HTML elements to parse and their corresponding component type(in AEM). For example - <figure> element is mapped to image component in AEM. Applicable to CMSs storing content as HTML markup, ex - Wordpress"
 		)
-		String[] htmlElementstoParseList() default "figure=image";
+		String[] htmlElementstoParseList() default "{figure.img=image,figure.a.img,figure.table}";
 		
 		@AttributeDefinition(
 				name = "DAM Assets Root Path (Source CMS) ",
@@ -108,9 +101,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 	/** The component aem property mapping. */
 	private String[] aemComponentPropertyMapping;
-
-	/** The component source CMS property mapping. */
-	private String[] sourceCMScomponentPropertyMapping;
 
 	/** The aem obj to JCR prop map. */
 	private String[] aemObjToJCRPropMap;
@@ -142,16 +132,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	public String[] getAEMComponentPropertyMapping() {
 
 		return aemComponentPropertyMapping;
-	}
-
-	/**
-	 * Gets the source CM scomponent property mapping.
-	 *
-	 * @return the source CM scomponent property mapping
-	 */
-	public String[] getSourceCMScomponentPropertyMapping() {
-
-		return sourceCMScomponentPropertyMapping;
 	}
 
 	/**
@@ -300,17 +280,14 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Map<String, String> htmlElementsToAEMComponentMap = MigrationUtil.getHTMLElementsToAEMComponentMap(this.htmlElementstoParseList);
 			for(Element element : elements) {
 
-				if(element != null && htmlElementsToAEMComponentMap.containsKey(element.nodeName())) {
+				WPComponent component = MigrationUtil.getComponent(element, htmlElementsToAEMComponentMap);
+				if(component != null) {
 
 					log.info("Element names are {} && {}", element.nodeName(), element.parent().nodeName());
-					WPComponent component = MigrationUtil.getComponent(element, htmlElementsToAEMComponentMap);
-					if(component != null) {
-
-						component.setAemDAMRootPath(this.aemDAMRootPath);
-						component.setSourceCMSDAMRootPath(this.sourceDAMRootPath);
-						componentsList.add(component);
-						counter++;
-					}
+					component.setAemDAMRootPath(this.aemDAMRootPath);
+					component.setSourceCMSDAMRootPath(this.sourceDAMRootPath);
+					componentsList.add(component);
+					counter++;
 				}
 			}
 			log.info("Number of components {}", counter);

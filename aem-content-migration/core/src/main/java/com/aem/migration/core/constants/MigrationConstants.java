@@ -6,6 +6,7 @@ public final class MigrationConstants {
 		
 	}
 	public static final String DOCUMENT_ELEMENT_FIGURE_IMAGE = "img";
+	public static final String DOCUMENT_ELEMENT_FIGURE_ANCHOR = "a";
 	public static final String DOCUMENT_ELEMENT_BODY = "body";
 	public static final String DOCUMENT_ELEMENT_FIGURE_CAPTION = "figcaption";
 	public static final String EQUAL = "=";

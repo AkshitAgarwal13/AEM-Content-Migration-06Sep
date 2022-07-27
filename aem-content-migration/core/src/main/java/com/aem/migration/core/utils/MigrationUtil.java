@@ -32,7 +32,7 @@ public final class MigrationUtil {
 	 */
 	public static WPComponent getComponent(final Element element, final Map<String, String> htmlElementToComponentMap) {
 
-		String componentType = htmlElementToComponentMap.get(element.nodeName());
+		String componentType = getComponentType(htmlElementToComponentMap, element);
 		if(StringUtils.isNotBlank(componentType)) {
 
 			WPComponent wpComponent = new WPComponent();
@@ -50,6 +50,31 @@ public final class MigrationUtil {
 	}
 
 	/**
+	 * Gets the component type.
+	 *
+	 * @param htmlElementToComponentMap the html element to component map
+	 * @param element the element
+	 * @return the component type
+	 */
+	private static String getComponentType(Map<String, String> htmlElementToComponentMap, Element element) {
+		
+		String parentElement = element.nodeName();
+		String firstElement = element.firstElementChild() != null ? element.firstElementChild().nodeName() : "";
+		String secondElement = element.firstElementChild() != null
+				&& element.firstElementChild().firstElementChild() != null
+						? element.firstElementChild().firstElementChild().nodeName()
+						: "";
+		if (htmlElementToComponentMap.containsKey(parentElement + "." + firstElement)) {
+
+			return htmlElementToComponentMap.get(parentElement + "." + firstElement);
+		} else if (htmlElementToComponentMap.containsKey(parentElement + "." + firstElement + "." + secondElement)) {
+
+			return htmlElementToComponentMap.get(parentElement + "." + firstElement + "." + secondElement);
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the image component.
 	 *
 	 * @param wpComponent the wp component
@@ -59,6 +84,10 @@ public final class MigrationUtil {
 	private static void getImageComponent(WPComponent wpComponent, Element element) {
 
 		Elements imgElement = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_IMAGE);
+		Elements anchorElement = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_ANCHOR);
+		if(anchorElement.hasAttr("href")) {
+			wpComponent.setSrc(anchorElement.attr("href"));
+		}
 		if(imgElement.hasAttr("src")) {
 			wpComponent.setImgSrc(imgElement.attr("src"));
 		}
