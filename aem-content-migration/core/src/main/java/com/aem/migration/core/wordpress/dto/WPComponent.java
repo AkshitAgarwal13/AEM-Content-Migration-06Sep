@@ -1,6 +1,12 @@
 package com.aem.migration.core.wordpress.dto;
 
 public class WPComponent {
+	
+	/** The table. */
+	private String tableData;
+	
+	/** The text. */
+	private String text;
 
 	/** The loading. */
 	private String loading;
@@ -232,6 +238,22 @@ public class WPComponent {
 	 */
 	public void setAemDAMRootPath(String aemDAMRootPath) {
 		this.aemDAMRootPath = aemDAMRootPath;
+	}
+
+	public String getTableData() {
+		return tableData;
+	}
+
+	public void setTableData(String tableData) {
+		this.tableData = tableData;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 
 }

@@ -45,6 +45,25 @@ public final class MigrationUtil {
 				getImageComponent(wpComponent, element);
 				return wpComponent;
 			}
+			else if(StringUtils.equalsIgnoreCase(componentType, MigrationConstants.TABLE_COMPONENT_TYPE)
+					&& StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE)
+					&& StringUtils.equalsIgnoreCase(element.parent().nodeName(),
+							MigrationConstants.DOCUMENT_ELEMENT_BODY)) {
+
+				getTableComponent(wpComponent, element);
+				return wpComponent;
+			}
+			else if(StringUtils.equalsIgnoreCase(componentType, MigrationConstants.TEXT_COMPONENT_TYPE)
+					&& (StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE_PARAGRAPH)||StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE_H1)||StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE_H2))
+					&& StringUtils.equalsIgnoreCase(element.parent().nodeName(),
+							MigrationConstants.DOCUMENT_ELEMENT_BODY)) {
+
+				getTextComponent(wpComponent, element);
+				return wpComponent;
+			}
+			else {
+				return null;
+			}
 		}
 		return null;
 	}
@@ -109,6 +128,33 @@ public final class MigrationUtil {
 		}
 		log.info("Image Attributes {}", imgElement);
 	}
+	private static void getTableComponent(WPComponent wpComponent, Element element) {
+
+		Elements table = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_TABLE);
+		
+		wpComponent.setTableData(table.html());
+		
+		log.info("Image Attributes {}", table);
+	}
+	
+	private static void getTextComponent(WPComponent wpComponent, Element element) {
+
+		Elements text1 = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_PARAGRAPH);
+		Elements text2 = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_H1);
+		Elements text3 = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_H2);
+		if(text1.html()!=null) {
+			wpComponent.setText(text1.html());
+		}
+		else if(text2.html()!=null) {
+			wpComponent.setText(text2.html());
+		}
+		else {
+			wpComponent.setText(text3.html());
+		}
+		
+		
+		log.info("Image Attributes {}", text1);
+	}
 
 	/**
 	 * Gets the AEM components list.
@@ -143,6 +189,12 @@ public final class MigrationUtil {
 		
 		if(StringUtils.equalsIgnoreCase("image", component.getComponentType())) {
 
+			return new AEMComponent(component, counter);
+		}
+		else if(StringUtils.equalsIgnoreCase("table", component.getComponentType())) {
+			return new AEMComponent(component, counter);
+		}
+		else if(StringUtils.equalsIgnoreCase("text", component.getComponentType())) {
 			return new AEMComponent(component, counter);
 		}
 		return null;
@@ -224,6 +276,16 @@ public final class MigrationUtil {
 		} else if(StringUtils.equalsIgnoreCase(property, "linkURL")) {
 			return aemComp.getLinkURL();
 		} 
+		else if(StringUtils.equalsIgnoreCase(property, "tableData")) {
+			return aemComp.getTableData();
+		} 
+		else if(StringUtils.equalsIgnoreCase(property, "textIsRich")) {
+			return "true";
+		} 
+		else if(StringUtils.equalsIgnoreCase(property, "text")) {
+			return aemComp.getText();
+		} 
+
 		
 		return null;
 	}

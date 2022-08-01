@@ -53,6 +53,15 @@ public class AEMComponent {
 
 	/** The width. */
 	private String width;
+	
+	/** The table */
+	private String tableData;
+	
+	/** The rich text */
+	private String textIsRich;
+	
+	/** The text */
+	private String text;
 
 	/**
 	 * Gets the jcr primary type.
@@ -188,6 +197,19 @@ public class AEMComponent {
 	public String getComponentType() {
 		return componentType;
 	}
+	
+
+	public String getTableData() {
+		return tableData;
+	}
+
+	public String getTextIsRich() {
+		return textIsRich;
+	}
+	
+	public String getText() {
+		return text;
+	}
 
 	/**
 	 * Instantiates a new image.
@@ -210,6 +232,11 @@ public class AEMComponent {
 		this.isDecorative = "false";
 		this.altValueFromDAM = "false";
 		this.nodeName = wpComponent.getComponentType() + "_" + componentCounter;
+		this.tableData = wpComponent.getTableData();
+		this.text=wpComponent.getText();
 		
 	}
+
+
+
 }

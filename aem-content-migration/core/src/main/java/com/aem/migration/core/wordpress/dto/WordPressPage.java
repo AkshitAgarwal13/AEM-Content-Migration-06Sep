@@ -61,6 +61,7 @@ public class WordPressPage {
 	/** The template. */
 	private String template;
 	
+	
 	/** The wp components list. */
 	private List<WPComponent> wpComponentsList;
 	
