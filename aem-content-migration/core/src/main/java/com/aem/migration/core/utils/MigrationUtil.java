@@ -53,10 +53,7 @@ public final class MigrationUtil {
 				getTableComponent(wpComponent, element);
 				return wpComponent;
 			}
-			else if(StringUtils.equalsIgnoreCase(componentType, MigrationConstants.TEXT_COMPONENT_TYPE)
-					&& (StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE_PARAGRAPH)||StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE_H1)||StringUtils.equalsIgnoreCase(element.nodeName(), MigrationConstants.DOCUMENT_ELEMENT_FIGURE_H2))
-					&& StringUtils.equalsIgnoreCase(element.parent().nodeName(),
-							MigrationConstants.DOCUMENT_ELEMENT_BODY)) {
+			else if(StringUtils.equalsIgnoreCase(componentType, MigrationConstants.TEXT_COMPONENT_TYPE)) {
 
 				getTextComponent(wpComponent, element);
 				return wpComponent;
@@ -89,6 +86,9 @@ public final class MigrationUtil {
 		} else if (htmlElementToComponentMap.containsKey(parentElement + "." + firstElement + "." + secondElement)) {
 
 			return htmlElementToComponentMap.get(parentElement + "." + firstElement + "." + secondElement);
+		}
+		else if(htmlElementToComponentMap.containsKey(firstElement)) {
+			return htmlElementToComponentMap.get(firstElement);
 		}
 		return null;
 	}
