@@ -20,17 +20,32 @@ import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.services.ContentProcessorService;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ContentProcessorServlet.
+ */
 @Component(service = { Servlet.class }, property = { "sling.servlet.methods=get",
 		"sling.servlet.paths=/bin/migrate-content" })
 public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
+	/** The content processor. */
 	@Reference
 	ContentProcessorService contentProcessor;
 
+	/** The Constant log. */
 	private static final Logger log = LoggerFactory.getLogger(ContentProcessorServlet.class);
 
+	/**
+	 * Do get.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	@Override
 	protected void doGet(final SlingHttpServletRequest request, final SlingHttpServletResponse response)
 			throws ServletException, IOException {

@@ -17,18 +17,26 @@ import com.aem.migration.core.constants.MigrationConstants;
 import com.aem.migration.core.wordpress.dto.WPComponent;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class MigrationUtil.
+ */
 public final class MigrationUtil {
 
+	/**
+	 * Instantiates a new migration util.
+	 */
 	private MigrationUtil() {}
 
+	/** The Constant log. */
 	private static final Logger log = LoggerFactory.getLogger(MigrationUtil.class);
 
 	/**
 	 * Adds the image component to page.
 	 *
-	 * @param wpPage the wp page
-	 * @param counter the counter
 	 * @param element the element
+	 * @param htmlElementToComponentMap the html element to component map
+	 * @return the component
 	 */
 	public static WPComponent getComponent(final Element element, final Map<String, String> htmlElementToComponentMap) {
 
@@ -128,6 +136,14 @@ public final class MigrationUtil {
 		}
 		log.info("Image Attributes {}", imgElement);
 	}
+	
+	/**
+	 * Gets the table component.
+	 *
+	 * @param wpComponent the wp component
+	 * @param element the element
+	 * @return the table component
+	 */
 	private static void getTableComponent(WPComponent wpComponent, Element element) {
 
 		Elements table = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_TABLE);
@@ -137,6 +153,13 @@ public final class MigrationUtil {
 		log.info("Image Attributes {}", table);
 	}
 	
+	/**
+	 * Gets the text component.
+	 *
+	 * @param wpComponent the wp component
+	 * @param element the element
+	 * @return the text component
+	 */
 	private static void getTextComponent(WPComponent wpComponent, Element element) {
 
 		Elements text1 = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_PARAGRAPH);
@@ -182,7 +205,7 @@ public final class MigrationUtil {
 	 * Gets the AEM component object.
 	 *
 	 * @param component the component
-	 * @param str the str
+	 * @param counter the counter
 	 * @return the AEM component object
 	 */
 	private static AEMComponent getAEMComponentObject(final WPComponent component, final int counter) {
@@ -203,7 +226,7 @@ public final class MigrationUtil {
 	/**
 	 * Gets the component properties map.
 	 *
-	 * @param compoJCRPropertyMap the compo property map
+	 * @param compoPropertyMap the compo property map
 	 * @return the component properties map
 	 */
 	public static Map<String, String[]> getComponentJCRPropertiesMap(String[] compoPropertyMap) {
@@ -293,7 +316,7 @@ public final class MigrationUtil {
 	/**
 	 * Gets the AEM page JSON.
 	 *
-	 * @param aemPage the aem page
+	 * @param aemPageJSONStr the aem page JSON str
 	 * @param aemComponentPropertyMapping the aem component property mapping
 	 * @return the AEM page JSON
 	 */

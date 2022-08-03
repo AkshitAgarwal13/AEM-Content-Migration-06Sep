@@ -24,11 +24,14 @@ import org.osgi.service.component.propertytypes.ServiceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: Auto-generated Javadoc
 /**
  * A service to demonstrate how changes in the resource tree
  * can be listened for. 
  * Please note, that apart from EventHandler services,
  * the immediate flag should not be set on a service.
+ *
+ * @see SimpleResourceEvent
  */
 @Component(service = ResourceChangeListener.class,
            immediate = true
@@ -36,8 +39,14 @@ import org.slf4j.LoggerFactory;
 @ServiceDescription("Demo to listen on changes in the resource tree")
 public class SimpleResourceListener implements ResourceChangeListener {
 
+    /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * On change.
+     *
+     * @param changes the changes
+     */
     @Override
     public void onChange(List<ResourceChange> changes) {
         changes.forEach(change -> {

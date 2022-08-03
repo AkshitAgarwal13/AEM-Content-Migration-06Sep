@@ -2,6 +2,10 @@ package com.aem.migration.core.wordpress.dto;
 
 import java.util.List;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class WPPageList.
+ */
 public class WPPageList {
 
 	/** The page list. */

@@ -39,29 +39,48 @@ import com.aem.migration.core.wordpress.dto.WordPressPage;
 import com.day.cq.dam.api.Asset;
 import com.google.gson.Gson;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ContentProcessorServiceImpl.
+ */
 @Component(
 	service = { ContentProcessorService.class }
 )
 @Designate(ocd = ContentProcessorServiceImpl.Config.class)
 public class ContentProcessorServiceImpl implements ContentProcessorService {
 
+	/** The Constant log. */
 	private static final Logger log = LoggerFactory.getLogger(ContentProcessorServiceImpl.class);
 
+	/** The resolver factory. */
 	@Reference
 	private ResourceResolverFactory resolverFactory;
 
+	/**
+	 * The Interface Config.
+	 */
 	@ObjectClassDefinition(
 		name = "Migration - Configuration",
 		description = "OSGi Service - Configuration to support migration process."
 	)
 	@interface Config {
 
+		/**
+		 * Source content extract file path.
+		 *
+		 * @return the string
+		 */
 		@AttributeDefinition(
 			name = "Content Source File Path (in DAM)",
 			description = "Path of the file having the content extract from source CMS."
 		)
 		String sourceContentExtractFilePath() default "/content/dam/migration/single-page-extract.json";
 
+		/**
+		 * Aem component property mapping.
+		 *
+		 * @return the string[]
+		 */
 		@AttributeDefinition(
 				name = "AEM Component Name and Properties",
 				description = "A mapping of AEM components and associated properties(comma separated).",
@@ -69,6 +88,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		)
 		String[] aemComponentPropertyMapping();
 
+		/**
+		 * Aem obj to JCR prop map.
+		 *
+		 * @return the string[]
+		 */
 		@AttributeDefinition(
 				name = "AEM Object and JCR Property mapping",
 				description = "AEM Object and JCR Property mapping. List of properties to replace in AEM page JSON.",
@@ -76,18 +100,33 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		)
 		String[] aemObjToJCRPropMap();
 
+		/**
+		 * Html elementsto parse list.
+		 *
+		 * @return the string[]
+		 */
 		@AttributeDefinition(
 				name = "HTML Elements to parse",
 				description = "List of the HTML elements to parse and their corresponding component type(in AEM). For example - <figure> element is mapped to image component in AEM. Applicable to CMSs storing content as HTML markup, ex - Wordpress"
 		)
 		String[] htmlElementstoParseList() default "{figure.img=image,figure.a.img,figure.table}";
 		
+		/**
+		 * Source DAM root path.
+		 *
+		 * @return the string
+		 */
 		@AttributeDefinition(
 				name = "DAM Assets Root Path (Source CMS) ",
 				description = "Root Path of the DAM folder in source CMS. This will be updated with the AEM DAM path."
 		)
 		String sourceDAMRootPath() default "http://localhost:8080/wordpress_sample_db/wp-content";
 		
+		/**
+		 * Aem DAM root path.
+		 *
+		 * @return the string
+		 */
 		@AttributeDefinition(
 				name = "DAM Assets Root Path (Target/AEM CMS) ",
 				description = "Root Path of the AEM DAM folder."
@@ -174,6 +213,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		return aemDAMRootPath;
 	}
 
+	/**
+	 * Activate.
+	 *
+	 * @param config the config
+	 */
 	@Activate
 	protected void activate(Config config) {
 
@@ -186,6 +230,9 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		log.info("File path of the source content extract is {}", this.sourceContentExtractFilePath);
 	}
 
+	/**
+	 * Deactivate.
+	 */
 	@Deactivate
 	protected void deactivate() {
 		log.info("ActivitiesImpl has been deactivated!");
@@ -266,6 +313,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * Extract WP page components.
 	 *
 	 * @param wpPage the wp page
+	 * @return the word press page
 	 */
 	@Override
 	public WordPressPage extractWPPageComponents(WordPressPage wpPage) {
@@ -299,7 +347,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	/**
 	 * Gets the AEM page create script.
 	 *
-	 * @param aemPage the aem page
+	 * @param aemPageList the aem page list
 	 * @return the AEM page create script
 	 */
 	@Override

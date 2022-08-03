@@ -1,5 +1,9 @@
 package com.aem.migration.core.wordpress.dto;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class WPComponent.
+ */
 public class WPComponent {
 	
 	/** The table. */
@@ -240,18 +244,38 @@ public class WPComponent {
 		this.aemDAMRootPath = aemDAMRootPath;
 	}
 
+	/**
+	 * Gets the table data.
+	 *
+	 * @return the table data
+	 */
 	public String getTableData() {
 		return tableData;
 	}
 
+	/**
+	 * Sets the table data.
+	 *
+	 * @param tableData the new table data
+	 */
 	public void setTableData(String tableData) {
 		this.tableData = tableData;
 	}
 
+	/**
+	 * Gets the text.
+	 *
+	 * @return the text
+	 */
 	public String getText() {
 		return text;
 	}
 
+	/**
+	 * Sets the text.
+	 *
+	 * @param text the new text
+	 */
 	public void setText(String text) {
 		this.text = text;
 	}
