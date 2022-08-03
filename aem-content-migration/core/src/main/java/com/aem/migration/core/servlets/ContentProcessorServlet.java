@@ -20,7 +20,6 @@ import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.services.ContentProcessorService;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ContentProcessorServlet.
  */
@@ -64,7 +63,6 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 			response.setContentType("application/json");
 			response.getWriter().write(aemPageJSON);
 		} else {
-			//response.setContentType("text/html");
 			response.getWriter().write(curlScript);
 		}
 	}

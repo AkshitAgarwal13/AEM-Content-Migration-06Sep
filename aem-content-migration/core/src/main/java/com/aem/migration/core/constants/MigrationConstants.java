@@ -19,5 +19,9 @@ public final class MigrationConstants {
 	public static final String TABLE_COMPONENT_TYPE = "table";
 	public static final String TEXT_COMPONENT_TYPE = "text";
 	public static final CharSequence DOCUMENT_ELEMENT_FIGURE = "figure";
+
+	public static final String IMAGE_SLING_RESOURCE_TYPE = "migration/components/image";
+	public static final String TABLE_SLING_RESOURCE_TYPE = "foundation/components/table";
 	
+	public static final String NT_UNSTRUCTURED = "nt:unstructured";
 }

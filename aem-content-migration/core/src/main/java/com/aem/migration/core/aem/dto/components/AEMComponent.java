@@ -1,7 +1,9 @@
 package com.aem.migration.core.aem.dto.components;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.aem.migration.core.constants.MigrationConstants;
 import com.aem.migration.core.wordpress.dto.WPComponent;
 
 /**
@@ -62,6 +64,9 @@ public class AEMComponent {
 	
 	/** The text */
 	private String text;
+	
+	/** The Constant FALSE. */
+	private static final String FALSE = "FALSE";
 
 	/**
 	 * Gets the jcr primary type.
@@ -218,25 +223,30 @@ public class AEMComponent {
 	 */
 	public AEMComponent(WPComponent wpComponent, int componentCounter) {
 
-		this.jcr_primaryType = "nt:unstructured";
+		this.jcr_primaryType = MigrationConstants.NT_UNSTRUCTURED;
 		this.componentType = wpComponent.getComponentType();
 		this.jcr_title = wpComponent.getImgCaption();
-		this.fileReference = StringUtils.isNotBlank(wpComponent.getImgSrc()) ? wpComponent.getImgSrc()
-				.replace(wpComponent.getSourceCMSDAMRootPath(), wpComponent.getAemDAMRootPath()) : StringUtils.EMPTY;
 		this.id = null;
-		this.alt = wpComponent.getAlt();
-		this.linkURL = wpComponent.getSrc();
-		this.displayPopupTitle = "false";
-		this.titleValueFromDAM = "false";
-		this.sling_resourceType = "migration/components/image";
-		this.isDecorative = "false";
-		this.altValueFromDAM = "false";
 		this.nodeName = wpComponent.getComponentType() + "_" + componentCounter;
-		this.tableData = wpComponent.getTableData();
-		this.text=wpComponent.getText();
-		
+		if(StringUtils.equalsIgnoreCase(wpComponent.getComponentType(), "image")) {
+			this.displayPopupTitle = FALSE;
+			this.titleValueFromDAM = FALSE;
+			this.isDecorative = FALSE;
+			this.altValueFromDAM = FALSE;
+			this.sling_resourceType = MigrationConstants.IMAGE_SLING_RESOURCE_TYPE;
+			this.linkURL = wpComponent.getSrc();
+			this.fileReference = StringUtils.isNotBlank(wpComponent.getImgSrc()) ? wpComponent.getImgSrc()
+					.replace(wpComponent.getSourceCMSDAMRootPath(), wpComponent.getAemDAMRootPath()) : null;
+		}
+		if(StringUtils.equalsIgnoreCase(wpComponent.getComponentType(), "table")) {
+			this.tableData = StringEscapeUtils.unescapeHtml(wpComponent.getTableData());
+			this.sling_resourceType = MigrationConstants.TABLE_SLING_RESOURCE_TYPE;
+			this.textIsRich = "true";
+		}		
+		if(StringUtils.equalsIgnoreCase(wpComponent.getComponentType(), "text")) {
+
+			this.text = wpComponent.getText();
+		}
 	}
-
-
 
 }

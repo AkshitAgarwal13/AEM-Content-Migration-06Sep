@@ -17,7 +17,6 @@ import com.aem.migration.core.constants.MigrationConstants;
 import com.aem.migration.core.wordpress.dto.WPComponent;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MigrationUtil.
  */
@@ -148,9 +147,9 @@ public final class MigrationUtil {
 
 		Elements table = element.getElementsByTag(MigrationConstants.DOCUMENT_ELEMENT_FIGURE_TABLE);
 		
-		wpComponent.setTableData(table.html());
+		wpComponent.setTableData(table.outerHtml().replaceAll("[\\n\t]", ""));
 		
-		log.info("Image Attributes {}", table);
+		log.info("Table Attributes {}", table);
 	}
 	
 	/**
@@ -176,7 +175,7 @@ public final class MigrationUtil {
 		}
 		
 		
-		log.info("Image Attributes {}", text1);
+		log.info("Text Attributes {}", text1);
 	}
 
 	/**
@@ -210,14 +209,10 @@ public final class MigrationUtil {
 	 */
 	private static AEMComponent getAEMComponentObject(final WPComponent component, final int counter) {
 		
-		if(StringUtils.equalsIgnoreCase("image", component.getComponentType())) {
+		if (StringUtils.equalsIgnoreCase("image", component.getComponentType())
+				|| StringUtils.equalsIgnoreCase("table", component.getComponentType())
+				|| StringUtils.equalsIgnoreCase("text", component.getComponentType())) {
 
-			return new AEMComponent(component, counter);
-		}
-		else if(StringUtils.equalsIgnoreCase("table", component.getComponentType())) {
-			return new AEMComponent(component, counter);
-		}
-		else if(StringUtils.equalsIgnoreCase("text", component.getComponentType())) {
 			return new AEMComponent(component, counter);
 		}
 		return null;
@@ -262,16 +257,19 @@ public final class MigrationUtil {
 			StringBuilder sb = new StringBuilder();
 			String componentNode = "jcr:content/root/container/container/";
 			String[] properties = mapCompProp.get(aemComp.getComponentType());
-			for(int count=0; count < properties.length; count++) {
+			if (properties != null && properties.length > 0) {
 
-				String validateProperty = getValidatedProperty(properties[count], aemComp);
-				if(StringUtils.isNotBlank(validateProperty)) {
+				for (int count = 0; count < properties.length; count++) {
 
-					sb.append(" -F \"").append(componentNode).append(aemComp.getNodeName());
-					sb.append("/").append(properties[count]).append("=").append(validateProperty).append("\"");
+					String validateProperty = getValidatedProperty(properties[count], aemComp);
+					if (StringUtils.isNotBlank(validateProperty)) {
+
+						sb.append(" -d \"").append(componentNode).append(aemComp.getNodeName());
+						sb.append("/").append(properties[count]).append("=").append(validateProperty).append("\"");
+					}
 				}
+				return sb.toString();
 			}
-			return sb.toString();
 		}
 		return null;
 	}
@@ -298,18 +296,13 @@ public final class MigrationUtil {
 			return aemComp.getAlt();
 		} else if(StringUtils.equalsIgnoreCase(property, "linkURL")) {
 			return aemComp.getLinkURL();
-		} 
-		else if(StringUtils.equalsIgnoreCase(property, "tableData")) {
+		} else if(StringUtils.equalsIgnoreCase(property, "tableData")) {
 			return aemComp.getTableData();
-		} 
-		else if(StringUtils.equalsIgnoreCase(property, "textIsRich")) {
+		} else if(StringUtils.equalsIgnoreCase(property, "textIsRich")) {
 			return "true";
-		} 
-		else if(StringUtils.equalsIgnoreCase(property, "text")) {
+		} else if(StringUtils.equalsIgnoreCase(property, "text")) {
 			return aemComp.getText();
-		} 
-
-		
+		}		
 		return null;
 	}
 

@@ -39,7 +39,7 @@ import com.aem.migration.core.wordpress.dto.WordPressPage;
 import com.day.cq.dam.api.Asset;
 import com.google.gson.Gson;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class ContentProcessorServiceImpl.
  */
@@ -358,22 +358,22 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		int counter = 1;
 		for (AEMPage aemPage : aemPageList) {
 
-			sb.append("curl -u admin:admin -F \"jcr:primaryType=");
+			sb.append("curl -u admin:admin -X POST -d \"jcr:primaryType=");
 			sb.append(aemPage.getJcr_primaryType() + "\"");
-			sb.append(" -F \"jcr:content/jcr:primaryType=");
+			sb.append(" -d \"jcr:content/jcr:primaryType=");
 			sb.append(aemPage.getJcrContent().getJcr_primaryType() + "\"");
-			sb.append(" -F \"jcr:content/jcr:title=");
+			sb.append(" -d \"jcr:content/jcr:title=");
 			sb.append(aemPage.getJcrContent().getJcr_title() + "\"");
-			sb.append(" -F \"jcr:content/cq:template=");
+			sb.append(" -d \"jcr:content/cq:template=");
 			sb.append(aemPage.getJcrContent().getCq_template() + "\"");
-			sb.append(" -F \"jcr:content/sling:resourceType=");
+			sb.append(" -d \"jcr:content/sling:resourceType=");
 			sb.append(aemPage.getJcrContent().getSling_resourceType() + "\"");
 			sb.append(" http://localhost:4502/content/migration/us/en/new-page-" + counter);
-			sb.append(" -F \"jcr:content/root/layout=responsiveGrid\"");
-			sb.append(" -F \"jcr:content/root/sling:resourceType=migration/components/container\"");
-			sb.append(" -F \"jcr:content/root/container/layout=responsiveGrid\"");
-			sb.append(" -F \"jcr:content/root/container/sling:resourceType=migration/components/container\"");
-			sb.append(" -F \"jcr:content/root/container/container/sling:resourceType=migration/components/container\"");
+			sb.append(" -d \"jcr:content/root/layout=responsiveGrid\"");
+			sb.append(" -d \"jcr:content/root/sling:resourceType=migration/components/container\"");
+			sb.append(" -d \"jcr:content/root/container/layout=responsiveGrid\"");
+			sb.append(" -d \"jcr:content/root/container/sling:resourceType=migration/components/container\"");
+			sb.append(" -d \"jcr:content/root/container/container/sling:resourceType=migration/components/container\"");
 
 			List<AEMComponent> components = aemPage.getJcrContent().getRootNode().getContainer().getChildContainerNode()
 					.getComponentsList();
