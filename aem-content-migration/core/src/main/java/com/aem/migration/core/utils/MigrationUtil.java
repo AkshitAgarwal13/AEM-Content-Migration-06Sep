@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.aem.dto.components.AEMComponent;
 import com.aem.migration.core.constants.MigrationConstants;
 import com.aem.migration.core.wordpress.dto.WPComponent;
@@ -250,11 +251,12 @@ public final class MigrationUtil {
 	 * @param mapCompProp the map comp prop
 	 * @return the component JCR properties
 	 */
-	public static String getComponentJCRProperties(AEMComponent aemComp, Map<String, String[]> mapCompProp) {
+	public static String getComponentJCRProperties(AEMComponent aemComp, Map<String, String[]> mapCompProp, boolean isCurl) {
 		
 		if(aemComp != null) {
 
 			StringBuilder sb = new StringBuilder();
+			StringBuilder sbCreatePage = new StringBuilder();
 			String componentNode = "jcr:content/root/container/container/";
 			String[] properties = mapCompProp.get(aemComp.getComponentType());
 			if (properties != null && properties.length > 0) {
@@ -266,9 +268,15 @@ public final class MigrationUtil {
 
 						sb.append(" -d \"").append(componentNode).append(aemComp.getNodeName());
 						sb.append("/").append(properties[count]).append("=").append(validateProperty).append("\"");
+						sbCreatePage.append("&").append(componentNode).append(aemComp.getNodeName());
+						sbCreatePage.append("/").append(properties[count]).append("=").append(validateProperty);
 					}
 				}
-				return sb.toString();
+				if(isCurl) {
+					return sb.toString();
+				} else {
+					return sbCreatePage.toString();
+				}
 			}
 		}
 		return null;
@@ -348,6 +356,17 @@ public final class MigrationUtil {
 			}
 		}
 		return map;
+	}
+
+	public static String getPagePath(AEMPage aemPage, String aemRootPath, String sourceRootPath) {
+		
+		String pagePath = aemPage.getTempPagePath();
+		if(StringUtils.isNotBlank(pagePath) && StringUtils.endsWith(pagePath, "/")) {
+			
+			pagePath = pagePath.substring(0, pagePath.length() - 1);
+			pagePath = pagePath.replace(sourceRootPath, aemRootPath);
+		}		
+		return pagePath;
 	}
 
 }

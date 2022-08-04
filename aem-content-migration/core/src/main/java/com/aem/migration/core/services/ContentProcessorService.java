@@ -58,4 +58,13 @@ public interface ContentProcessorService {
 	 */
 	public String getAEMPageJSON(List<AEMPage> aemPage);
 
+
+	/**
+	 * Creates the AEM page.
+	 *
+	 * @param aemPage the aem page
+	 * @return the string
+	 */
+	public String createAEMPage(AEMPage aemPage);
+
 }

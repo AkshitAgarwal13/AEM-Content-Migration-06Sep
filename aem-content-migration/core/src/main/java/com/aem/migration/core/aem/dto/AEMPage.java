@@ -13,10 +13,19 @@ public class AEMPage {
 	/** The jcr created by. */
 	private String jcr_createdBy;
 	
+	/** The page path. */
+	private String tempPagePath;
+	
 	/** The jcr content. */
 	private JCRContent jcrContent;
 	
+	/**
+	 * Gets the jcr content.
+	 *
+	 * @return the jcr content
+	 */
 	public JCRContent getJcrContent() {
+
 		return jcrContent;
 	}
 
@@ -29,6 +38,7 @@ public class AEMPage {
 
 		this.jcr_primaryType = "cq:Page";
 		this.jcr_createdBy = wpPage.getAuthor();
+		this.tempPagePath = wpPage.getLink();
 		this.jcrContent = new JCRContent(wpPage);
 	}
 	
@@ -48,6 +58,15 @@ public class AEMPage {
 	 */
 	public String getJcr_createdBy() {
 		return jcr_createdBy;
+	}
+	
+	/**
+	 * Gets the page path.
+	 *
+	 * @return the page path
+	 */
+	public String getTempPagePath() {
+		return tempPagePath;
 	}
 
 }

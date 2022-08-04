@@ -1,12 +1,20 @@
 package com.aem.migration.core.services.impl;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -128,11 +136,32 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		 * @return the string
 		 */
 		@AttributeDefinition(
-				name = "DAM Assets Root Path (Target/AEM CMS) ",
+				name = "DAM Assets Root Path (AEM) ",
 				description = "Root Path of the AEM DAM folder."
 		)
 		String aemDAMRootPath() default "/content/dam/migration";
-
+		
+		/**
+		 * Aem site root path.
+		 *
+		 * @return the string
+		 */
+		@AttributeDefinition(
+				name = "Site Root Path (AEM) ",
+				description = "Root Path of the AEM Site. Pages will be created under this path."
+		)
+		String aemSiteRootPath() default "http://localhost:4502/content/migration/us/en";
+		
+		/**
+		 * Source CMS site root path.
+		 *
+		 * @return the string
+		 */
+		@AttributeDefinition(
+				name = "Site Root Path (Source CMS) ",
+				description = "Root Path of the Site in Source CMS."
+		)
+		String sourceCMSSiteRootPath() default "http://localhost:8080/wordpress_sample_db";
 	}
 
 	/** The source content extract file path. */
@@ -152,6 +181,12 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 	/** The aem DAM root path. */
 	private String aemDAMRootPath;
+	
+	/** The aem site root path. */
+	private String aemSiteRootPath;
+	
+	/** The source CMS site root path. */
+	private String sourceCMSSiteRootPath;
 
 	/**
 	 * Gets the source content extract file path.
@@ -212,6 +247,26 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 		return aemDAMRootPath;
 	}
+	
+	/**
+	 * Gets the aem site root path.
+	 *
+	 * @return the aem site root path
+	 */
+	public String getAemSiteRootPath() {
+
+		return aemSiteRootPath;
+	}
+	
+	/**
+	 * Gets the source CMS site root path.
+	 *
+	 * @return the source CMS site root path
+	 */
+	public String getSourceCMSSiteRootPath() {
+
+		return sourceCMSSiteRootPath;
+	}
 
 	/**
 	 * Activate.
@@ -227,6 +282,8 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		this.htmlElementstoParseList = config.htmlElementstoParseList();
 		this.sourceDAMRootPath = config.sourceDAMRootPath();
 		this.aemDAMRootPath = config.aemDAMRootPath();
+		this.aemSiteRootPath = config.aemSiteRootPath();
+		this.sourceCMSSiteRootPath = config.sourceCMSSiteRootPath();
 		log.info("File path of the source content extract is {}", this.sourceContentExtractFilePath);
 	}
 
@@ -354,10 +411,17 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	public String getAEMPageCreateScript(List<AEMPage> aemPageList) {
 
 		StringBuilder sb = new StringBuilder();
+		
+		String pagePath = null;
 
 		int counter = 1;
 		for (AEMPage aemPage : aemPageList) {
 
+			sb.append(":: ## ******************Page count " + counter + " current page title " + aemPage.getJcrContent().getJcr_title());
+			sb.append("\n\n");
+			
+			pagePath = MigrationUtil.getPagePath(aemPage, this.aemSiteRootPath, this.sourceCMSSiteRootPath);
+			
 			sb.append("curl -u admin:admin -X POST -d \"jcr:primaryType=");
 			sb.append(aemPage.getJcr_primaryType() + "\"");
 			sb.append(" -d \"jcr:content/jcr:primaryType=");
@@ -368,7 +432,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			sb.append(aemPage.getJcrContent().getCq_template() + "\"");
 			sb.append(" -d \"jcr:content/sling:resourceType=");
 			sb.append(aemPage.getJcrContent().getSling_resourceType() + "\"");
-			sb.append(" http://localhost:4502/content/migration/us/en/new-page-" + counter);
+			sb.append(" " + pagePath);
 			sb.append(" -d \"jcr:content/root/layout=responsiveGrid\"");
 			sb.append(" -d \"jcr:content/root/sling:resourceType=migration/components/container\"");
 			sb.append(" -d \"jcr:content/root/container/layout=responsiveGrid\"");
@@ -384,12 +448,9 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 				for (int count = 0; count < components.size(); count++) {
 
 					AEMComponent aemComp = components.get(count);
-					sb.append(MigrationUtil.getComponentJCRProperties(aemComp, mapCompProp));
+					sb.append(MigrationUtil.getComponentJCRProperties(aemComp, mapCompProp, true));
 				}
 			}
-			sb.append("\n");
-			sb.append(":: ##********************************************************Page count " + counter + " current page title " + aemPage.getJcrContent().getJcr_title());
-			sb.append("\n");
 			counter++;
 		}
 
@@ -409,6 +470,76 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			
 			Gson gson = new Gson();
 			return MigrationUtil.getAEMPageJSON(gson.toJson(aemPage), this.aemObjToJCRPropMap);
+		}
+		return null;
+	}
+
+	/**
+	 * Creates the AEM page.
+	 *
+	 * @param aemPageList the aem page list
+	 * @return the string
+	 */
+	@Override
+	public String createAEMPage(AEMPage aemPage) {
+		
+		URL url;
+		String pagePath = MigrationUtil.getPagePath(aemPage, this.aemSiteRootPath, this.sourceCMSSiteRootPath);
+		try {
+			url = new URL(pagePath);
+			HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+			httpConn.setRequestMethod("POST");
+
+			httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+			byte[] message = ("admin:admin").getBytes(StandardCharsets.UTF_8);
+			String basicAuth = DatatypeConverter.printBase64Binary(message);
+			httpConn.setRequestProperty("Authorization", "Basic " + basicAuth);
+
+			httpConn.setDoOutput(true);
+			OutputStreamWriter writer = new OutputStreamWriter(httpConn.getOutputStream());
+			StringBuilder sb = new StringBuilder();
+			sb.append("jcr:primaryType=" + aemPage.getJcr_primaryType()); 
+			sb.append("&jcr:content/jcr:primaryType=" + aemPage.getJcrContent().getJcr_primaryType()); 
+			sb.append("&jcr:content/jcr:title=" + aemPage.getJcrContent().getJcr_title()); 
+			sb.append("&jcr:content/cq:template=" + aemPage.getJcrContent().getCq_template()); 
+			sb.append("&jcr:content/sling:resourceType=" + aemPage.getJcrContent().getSling_resourceType()); 
+			sb.append("&jcr:content/root/layout=responsiveGrid");
+			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
+			sb.append("&jcr:content/root/container/layout=responsiveGrid");
+			sb.append("&jcr:content/root/container/sling:resourceType=migration/components/container");
+			sb.append("&jcr:content/root/container/container/sling:resourceType=migration/components/container");
+
+			List<AEMComponent> components = aemPage.getJcrContent().getRootNode().getContainer().getChildContainerNode()
+					.getComponentsList();
+			Map<String, String[]> mapCompProp = MigrationUtil
+					.getComponentJCRPropertiesMap(this.aemComponentPropertyMapping);
+			if (MapUtils.isNotEmpty(mapCompProp)) {
+
+				for (int count = 0; count < components.size(); count++) {
+
+					AEMComponent aemComp = components.get(count);
+					sb.append(MigrationUtil.getComponentJCRProperties(aemComp, mapCompProp, false));
+				}
+			}
+			writer.write(sb.toString());
+			writer.flush();
+			writer.close();
+			httpConn.getOutputStream().close();
+
+			InputStream responseStream = httpConn.getResponseCode() / 100 == 2 ? httpConn.getInputStream()
+					: httpConn.getErrorStream();
+			Scanner s = new Scanner(responseStream).useDelimiter("\\A");
+			String response = s.hasNext() ? s.next() : "";
+			log.info(response);
+			return pagePath;
+
+		} catch (MalformedURLException e) {
+			
+			log.error("MalformedURLException", e);
+		} catch (IOException ioExc) {
+			
+			log.error("IOException", ioExc);
 		}
 		return null;
 	}

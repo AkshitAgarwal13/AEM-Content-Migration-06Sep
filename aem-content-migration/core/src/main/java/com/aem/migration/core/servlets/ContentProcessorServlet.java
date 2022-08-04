@@ -1,8 +1,10 @@
 package com.aem.migration.core.servlets;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -49,6 +51,7 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 	protected void doGet(final SlingHttpServletRequest request, final SlingHttpServletResponse response)
 			throws ServletException, IOException {
 
+		PrintWriter out = response.getWriter();
 		List<WordPressPage> wordPressPageList = contentProcessor.getWPPagesList();
 		List<AEMPage> aemPageList = new ArrayList<>();
 		int counter = 1;
@@ -56,14 +59,23 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		
 			log.info("Count  {} and page name {} ", counter, wpPage.getTitle());
 			aemPageList.add(new AEMPage(wpPage));
+			counter++;
 		}
 		String aemPageJSON = contentProcessor.getAEMPageJSON(aemPageList);
 		String curlScript = contentProcessor.getAEMPageCreateScript(aemPageList);
-		if (StringUtils.equalsIgnoreCase(request.getParameter("showAEMPageJSON"), "true")) {
+		if(StringUtils.equals(request.getParameter("createPages"), "true")) {
+
+			for(int count = 0; count < aemPageList.size(); count++ ) {
+
+				out.write((count + 1) + ". Migrating page(source) " + aemPageList.get(count).getTempPagePath() + "\n\n");
+				out.print("Page created successfully in AEM at path  " + contentProcessor.createAEMPage(aemPageList.get(count)) + "\n\n");
+			}
+		} else if (StringUtils.equalsIgnoreCase(request.getParameter("showAEMPageJSON"), "true")) {
+
 			response.setContentType("application/json");
 			response.getWriter().write(aemPageJSON);
 		} else {
-			response.getWriter().write(curlScript);
+			out.write(curlScript);
 		}
 	}
 }
