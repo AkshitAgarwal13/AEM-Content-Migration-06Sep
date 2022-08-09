@@ -301,7 +301,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @return the source content extract
 	 */
 	@Override
-	public BufferedReader getSourceContentExtract() {
+	public BufferedReader getSourceContentExtract(String damPath) {
 
 		/* Reading the JSON File from DAM. */
 		Resource original;
@@ -311,9 +311,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		// param.put(ResourceResolverFactory.SUBSERVICE, "readService"); //readService
 		// is System User.
 		try {
-
+			if(StringUtils.isBlank(damPath)) {
+				damPath = this.sourceContentExtractFilePath;
+			}
 			ResourceResolver resolver = resolverFactory.getAdministrativeResourceResolver(null); // Change this to get resolver using service user.																				
-			Resource resource = resolver.getResource(this.sourceContentExtractFilePath);
+			Resource resource = resolver.getResource(damPath);
 			Asset asset = resource.adaptTo(Asset.class);
 			original = asset.getOriginal();
 			content = original.adaptTo(InputStream.class);
@@ -332,9 +334,9 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @return the WP page object
 	 */
 	@Override
-	public List<WordPressPage> getWPPagesList() {
+	public List<WordPressPage> getWPPagesList(String damPath) {
 
-		BufferedReader pageJSONReader = getSourceContentExtract();
+		BufferedReader pageJSONReader = getSourceContentExtract(damPath);
 		WPPageList wpPageList = null;
 		if(pageJSONReader != null) {
 
@@ -481,10 +483,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @return the string
 	 */
 	@Override
-	public String createAEMPage(AEMPage aemPage) {
+	public String createAEMPage(AEMPage aemPage, String destPath) {
 		
 		URL url;
-		String pagePath = MigrationUtil.getPagePath(aemPage, this.aemSiteRootPath, this.sourceCMSSiteRootPath);
+		if(StringUtils.isBlank(destPath)) {
+			destPath = this.aemSiteRootPath;
+		}
+		String pagePath = MigrationUtil.getPagePath(aemPage, destPath, this.sourceCMSSiteRootPath);
 		try {
 			url = new URL(pagePath);
 			HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();

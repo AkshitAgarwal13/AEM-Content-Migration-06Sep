@@ -24,14 +24,14 @@ public interface ContentProcessorService {
 	 *
 	 * @return the source content extract
 	 */
-	public BufferedReader getSourceContentExtract();
+	public BufferedReader getSourceContentExtract(String damPath);
 	
 	/**
 	 * Gets the WP page object.
 	 *
 	 * @return the WP page object
 	 */
-	public List<WordPressPage> getWPPagesList();
+	public List<WordPressPage> getWPPagesList(String damPath);
 	
 	/**
 	 * Extract WP page components.
@@ -65,6 +65,6 @@ public interface ContentProcessorService {
 	 * @param aemPage the aem page
 	 * @return the string
 	 */
-	public String createAEMPage(AEMPage aemPage);
+	public String createAEMPage(AEMPage aemPage, String destPath);
 
 }

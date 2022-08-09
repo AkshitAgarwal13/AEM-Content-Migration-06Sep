@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -53,7 +52,8 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
-		List<WordPressPage> wordPressPageList = contentProcessor.getWPPagesList();
+		String damPath = request.getParameter("sourcePath");
+		List<WordPressPage> wordPressPageList = contentProcessor.getWPPagesList(damPath);
 		List<AEMPage> aemPageList = new ArrayList<>();
 		int counter = 1;
 		for(WordPressPage wpPage : wordPressPageList) {
@@ -68,9 +68,10 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 
 			response.setContentType("text/html;charset=UTF-8");
 			String pageURL = null;
+			String aemRootNodePath = request.getParameter("destPath");
 			for (int count = 0; count < aemPageList.size(); count++) {
 
-				pageURL = contentProcessor.createAEMPage(aemPageList.get(count)) + ".html";
+				pageURL = contentProcessor.createAEMPage(aemPageList.get(count), aemRootNodePath) + ".html";
 				out.write(
 						(count + 1) + ". Migrating page(source) " + aemPageList.get(count).getTempPagePath() + "<br>");
 				out.write("Page created successfully in AEM at path  <a target=\"_blank\" href=\""
