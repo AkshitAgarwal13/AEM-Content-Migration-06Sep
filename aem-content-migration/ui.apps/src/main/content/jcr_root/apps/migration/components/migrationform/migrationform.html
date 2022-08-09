@@ -1,0 +1,51 @@
+<div class="cmp-helloworld" data-cmp-is="helloworld">
+   <h2 class="cmp-helloworld__title">Migration Utility</h2>
+   <form method="post">
+      <label for="sourcecms">Source CMS: </label>
+      <select style="margin-left: 320px;" id="cmsOptions" name="CMS">
+         <option value="wordpress">WordPress</option>
+         <option value="sitecore">Site-Core</option>
+         <option value="cms3">Sharepoint</option>
+         <option value="cms4">Opentext</option>
+      </select>
+      <br>
+      <label for="sourcefile">DAM Path of the content extract(from source CMS): </label>
+      <input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="attachment" id="attachment">
+	  <br>	
+      <label for="url">AEM Site Root Path: </label>
+      <input style="margin-left: 270px; margin-top:15px;margin-bottom:15px; width:50%;" type="text" name="url" id="url">
+      <br>
+      <button style="margin-left: 420px; margin-top:15px;margin-bottom:35px;" id="button_2" value="val_2" name="but2">Create Pages</button>
+   </form>
+   <p id="demo"></p>
+   <script src=”https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js” 
+      type=”text/javascript”></script>
+   <script type="text/javascript">
+
+              $(document).ready(function(){
+
+				var cmsVal= $('#cmsOptions').filter(":selected").text()
+				//var sourcePath= document.getElementById("attachment").text;
+
+				//var destPath= document.getElementById("url").text;
+                  $("button").click(function (e) {
+                     e.preventDefault();
+          			$.ajax({
+              type: "GET",
+              url: "/bin/migrate-content?createPages=true",
+              data: { 
+                  id: $(this).val(), // < note use of 'this' here
+                  access_token: $("#access_token").val() 
+              },
+              success: function(result) {
+                  document.getElementById("demo").innerHTML = result;
+              },
+              error: function(result) {
+                  alert('error');
+              }
+          });
+                  });
+              });
+          
+   </script>
+</div>

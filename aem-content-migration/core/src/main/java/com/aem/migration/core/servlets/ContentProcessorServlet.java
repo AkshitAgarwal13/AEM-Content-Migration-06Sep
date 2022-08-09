@@ -51,12 +51,13 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 	protected void doGet(final SlingHttpServletRequest request, final SlingHttpServletResponse response)
 			throws ServletException, IOException {
 
+		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		List<WordPressPage> wordPressPageList = contentProcessor.getWPPagesList();
 		List<AEMPage> aemPageList = new ArrayList<>();
 		int counter = 1;
 		for(WordPressPage wpPage : wordPressPageList) {
-		
+
 			log.info("Count  {} and page name {} ", counter, wpPage.getTitle());
 			aemPageList.add(new AEMPage(wpPage));
 			counter++;
@@ -65,15 +66,21 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		String curlScript = contentProcessor.getAEMPageCreateScript(aemPageList);
 		if(StringUtils.equals(request.getParameter("createPages"), "true")) {
 
-			for(int count = 0; count < aemPageList.size(); count++ ) {
+			response.setContentType("text/html;charset=UTF-8");
+			String pageURL = null;
+			for (int count = 0; count < aemPageList.size(); count++) {
 
-				out.write((count + 1) + ". Migrating page(source) " + aemPageList.get(count).getTempPagePath() + "\n\n");
-				out.print("Page created successfully in AEM at path  " + contentProcessor.createAEMPage(aemPageList.get(count)) + "\n\n");
+				pageURL = contentProcessor.createAEMPage(aemPageList.get(count)) + ".html";
+				out.write(
+						(count + 1) + ". Migrating page(source) " + aemPageList.get(count).getTempPagePath() + "<br>");
+				out.write("Page created successfully in AEM at path  <a target=\"_blank\" href=\""
+						+ pageURL + "\">"
+						+ pageURL + "</a><br><br>");
 			}
 		} else if (StringUtils.equalsIgnoreCase(request.getParameter("showAEMPageJSON"), "true")) {
 
-			response.setContentType("application/json");
-			response.getWriter().write(aemPageJSON);
+			response.setContentType("application/json;charset=UTF-8");
+			out.print(aemPageJSON);
 		} else {
 			out.write(curlScript);
 		}
