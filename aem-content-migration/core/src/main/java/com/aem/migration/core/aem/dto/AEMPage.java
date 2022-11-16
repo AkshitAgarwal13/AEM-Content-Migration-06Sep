@@ -42,6 +42,7 @@ public class AEMPage {
 		this.jcrContent = new JCRContent(wpPage);
 	}
 	
+	
 	/**
 	 * Gets the jcr primary type.
 	 *

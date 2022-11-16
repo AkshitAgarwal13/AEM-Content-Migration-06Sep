@@ -73,6 +73,7 @@ public final class MigrationUtil {
 		return null;
 	}
 
+
 	/**
 	 * Gets the component type.
 	 *
@@ -201,6 +202,8 @@ public final class MigrationUtil {
 		return aemComponentsList;
 	}
 
+
+	
 	/**
 	 * Gets the AEM component object.
 	 *
@@ -364,7 +367,10 @@ public final class MigrationUtil {
 		if(StringUtils.isNotBlank(pagePath) && StringUtils.endsWith(pagePath, "/")) {
 			
 			pagePath = pagePath.substring(0, pagePath.length() - 1);
+			String pageName = pagePath.replaceFirst(".*/([^/?]+).*", "$1");
+			sourceRootPath = pagePath;
 			pagePath = pagePath.replace(sourceRootPath, aemRootPath);
+			pagePath = pagePath +"/"+ pageName;
 		}		
 		return pagePath;
 	}

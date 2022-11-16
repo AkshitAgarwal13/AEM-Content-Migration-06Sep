@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.services.ContentProcessorService;
-import com.aem.migration.core.wordpress.dto.WordPressPage;
+import com.google.gson.JsonObject;
 
 /**
  * The Class ContentProcessorServlet.
@@ -53,17 +53,13 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		String damPath = request.getParameter("sourcePath");
-		List<WordPressPage> wordPressPageList = contentProcessor.getWPPagesList(damPath);
+		String cmsVal = request.getParameter("cmsVal");
+		String configPath = request.getParameter("configPath");
 		List<AEMPage> aemPageList = new ArrayList<>();
-		int counter = 1;
-		for(WordPressPage wpPage : wordPressPageList) {
-
-			log.info("Count  {} and page name {} ", counter, wpPage.getTitle());
-			aemPageList.add(new AEMPage(wpPage));
-			counter++;
-		}
-		String aemPageJSON = contentProcessor.getAEMPageJSON(aemPageList);
-		String curlScript = contentProcessor.getAEMPageCreateScript(aemPageList);
+		
+		
+		JsonObject jsonObject = contentProcessor.getWPPagesList(damPath,configPath);
+		//String curlScript = contentProcessor.getAEMPageCreateScript(jsonObject);
 		if(StringUtils.equals(request.getParameter("createPages"), "true")) {
 
 			response.setContentType("text/html;charset=UTF-8");
@@ -81,9 +77,8 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		} else if (StringUtils.equalsIgnoreCase(request.getParameter("showAEMPageJSON"), "true")) {
 
 			response.setContentType("application/json;charset=UTF-8");
-			out.print(aemPageJSON);
 		} else {
-			out.write(curlScript);
+			out.write(jsonObject.toString());
 		}
 	}
 }

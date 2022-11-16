@@ -1,6 +1,6 @@
 <div class="cmp-helloworld" data-cmp-is="helloworld">
 	<h2 class="cmp-helloworld__title">Migration Utility</h2>
-	<form method="post">
+	<form id="formClass" method="post">
 		<label for="sourcecms">Source CMS: </label>
 		<select style="margin-left: 320px;" id="cmsOptions" name="CMS">
 			<option value="wordpress">WordPress</option>
@@ -9,8 +9,12 @@
 			<option value="cms4">Opentext</option>
 		</select>
 		<br>
-		<label for="sourcefile">DAM Path of the content extract(from source CMS): </label>
+		<label for="sourcefile">URL of the external site page (from source CMS):           &nbsp;&nbsp;  </label>
 		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="attachment" id="attachment">
+	<br>	
+
+		<label for="configfile">Upload configurations from file system in excel:           &nbsp;&nbsp;  </label>
+		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="file" name="config" id="config">
 	<br>	
 	<label for="url">AEM Site Root Path: </label>
 	<input style="margin-left: 270px; margin-top:15px;margin-bottom:15px; width:50%;" type="text" name="url" id="url">
@@ -26,6 +30,8 @@
 				var cmsVal = document.getElementById("cmsOptions").value;
 				var sourcePath = document.getElementById("attachment").value;
 				var destPath= document.getElementById("url").value;
+
+				var configPath= document.getElementById("config").files[0].name;
 				e.preventDefault();
 				$.ajax({
 					type: "GET",
@@ -34,13 +40,16 @@
 						"createPages": true,
 						"cmsVal": cmsVal,
 						"sourcePath": sourcePath,
-						"destPath": destPath
+						"destPath": destPath,
+						"configPath": configPath
 					},
 					success: function(result) {
 						document.getElementById("demo").innerHTML = result;
+						document.getElementById("formClass").style.display = "none";
+
 					},
 					error: function(result) {
-						alert('error');
+						document.getElementById("demo").innerHTML = result;
 					}
 				});
 			});

@@ -67,4 +67,5 @@ public class RootContainerNode {
 		this.sling_resourceType = "migration/components/container";
 		this.childContainerNode = new ChildContainerNode(wpPage);
 	}
+
 }

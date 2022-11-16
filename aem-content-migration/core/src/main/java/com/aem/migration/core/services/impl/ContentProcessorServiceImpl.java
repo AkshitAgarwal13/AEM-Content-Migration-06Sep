@@ -1,15 +1,17 @@
 package com.aem.migration.core.services.impl;
 
-import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,9 +20,11 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.LoginException;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,18 +46,15 @@ import com.aem.migration.core.aem.dto.components.AEMComponent;
 import com.aem.migration.core.services.ContentProcessorService;
 import com.aem.migration.core.utils.MigrationUtil;
 import com.aem.migration.core.wordpress.dto.WPComponent;
-import com.aem.migration.core.wordpress.dto.WPPageList;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
-import com.day.cq.dam.api.Asset;
 import com.google.gson.Gson;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * The Class ContentProcessorServiceImpl.
  */
-@Component(
-	service = { ContentProcessorService.class }
-)
+@Component(service = { ContentProcessorService.class })
 @Designate(ocd = ContentProcessorServiceImpl.Config.class)
 public class ContentProcessorServiceImpl implements ContentProcessorService {
 
@@ -67,10 +68,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	/**
 	 * The Interface Config.
 	 */
-	@ObjectClassDefinition(
-		name = "Migration - Configuration",
-		description = "OSGi Service - Configuration to support migration process."
-	)
+	@ObjectClassDefinition(name = "Migration - Configuration", description = "OSGi Service - Configuration to support migration process.")
 	@interface Config {
 
 		/**
@@ -78,10 +76,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		 *
 		 * @return the string
 		 */
-		@AttributeDefinition(
-			name = "Content Source File Path (in DAM)",
-			description = "Path of the file having the content extract from source CMS."
-		)
+		@AttributeDefinition(name = "Content Source File Path (in DAM)", description = "Path of the file having the content extract from source CMS.")
 		String sourceContentExtractFilePath() default "/content/dam/migration/single-page-extract.json";
 
 		/**
@@ -89,11 +84,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		 *
 		 * @return the string[]
 		 */
-		@AttributeDefinition(
-				name = "AEM Component Name and Properties",
-				description = "A mapping of AEM components and associated properties(comma separated).",
-				type = AttributeType.STRING
-		)
+		@AttributeDefinition(name = "AEM Component Name and Properties", description = "A mapping of AEM components and associated properties(comma separated).", type = AttributeType.STRING)
 		String[] aemComponentPropertyMapping();
 
 		/**
@@ -101,11 +92,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		 *
 		 * @return the string[]
 		 */
-		@AttributeDefinition(
-				name = "AEM Object and JCR Property mapping",
-				description = "AEM Object and JCR Property mapping. List of properties to replace in AEM page JSON.",
-				type = AttributeType.STRING
-		)
+		@AttributeDefinition(name = "AEM Object and JCR Property mapping", description = "AEM Object and JCR Property mapping. List of properties to replace in AEM page JSON.", type = AttributeType.STRING)
 		String[] aemObjToJCRPropMap();
 
 		/**
@@ -113,54 +100,39 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		 *
 		 * @return the string[]
 		 */
-		@AttributeDefinition(
-				name = "HTML Elements to parse",
-				description = "List of the HTML elements to parse and their corresponding component type(in AEM). For example - <figure> element is mapped to image component in AEM. Applicable to CMSs storing content as HTML markup, ex - Wordpress"
-		)
-		String[] htmlElementstoParseList() default "{figure.img=image,figure.a.img,figure.table}";
-		
+		@AttributeDefinition(name = "HTML Elements to parse", description = "List of the HTML elements to parse and their corresponding component type(in AEM). For example - <figure> element is mapped to image component in AEM. Applicable to CMSs storing content as HTML markup, ex - Wordpress")
+		String[] htmlElementstoParseList() default "{figure.img=image,figure.a.img=image,figure.table=table}";
+
 		/**
 		 * Source DAM root path.
 		 *
 		 * @return the string
 		 */
-		@AttributeDefinition(
-				name = "DAM Assets Root Path (Source CMS) ",
-				description = "Root Path of the DAM folder in source CMS. This will be updated with the AEM DAM path."
-		)
+		@AttributeDefinition(name = "DAM Assets Root Path (Source CMS) ", description = "Root Path of the DAM folder in source CMS. This will be updated with the AEM DAM path.")
 		String sourceDAMRootPath() default "http://localhost:8080/wordpress_sample_db/wp-content";
-		
+
 		/**
 		 * Aem DAM root path.
 		 *
 		 * @return the string
 		 */
-		@AttributeDefinition(
-				name = "DAM Assets Root Path (AEM) ",
-				description = "Root Path of the AEM DAM folder."
-		)
+		@AttributeDefinition(name = "DAM Assets Root Path (AEM) ", description = "Root Path of the AEM DAM folder.")
 		String aemDAMRootPath() default "/content/dam/migration";
-		
+
 		/**
 		 * Aem site root path.
 		 *
 		 * @return the string
 		 */
-		@AttributeDefinition(
-				name = "Site Root Path (AEM) ",
-				description = "Root Path of the AEM Site. Pages will be created under this path."
-		)
+		@AttributeDefinition(name = "Site Root Path (AEM) ", description = "Root Path of the AEM Site. Pages will be created under this path.")
 		String aemSiteRootPath() default "http://localhost:4502/content/migration/us/en";
-		
+
 		/**
 		 * Source CMS site root path.
 		 *
 		 * @return the string
 		 */
-		@AttributeDefinition(
-				name = "Site Root Path (Source CMS) ",
-				description = "Root Path of the Site in Source CMS."
-		)
+		@AttributeDefinition(name = "Site Root Path (Source CMS) ", description = "Root Path of the Site in Source CMS.")
 		String sourceCMSSiteRootPath() default "http://localhost:8080/wordpress_sample_db";
 	}
 
@@ -175,16 +147,16 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 	/** The html elementsto parse list. */
 	private String[] htmlElementstoParseList;
-	
+
 	/** The source DAM root path. */
 	private String sourceDAMRootPath;
 
 	/** The aem DAM root path. */
 	private String aemDAMRootPath;
-	
+
 	/** The aem site root path. */
 	private String aemSiteRootPath;
-	
+
 	/** The source CMS site root path. */
 	private String sourceCMSSiteRootPath;
 
@@ -227,7 +199,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 		return htmlElementstoParseList;
 	}
-	
+
 	/**
 	 * Gets the source DAM root path.
 	 *
@@ -247,7 +219,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 		return aemDAMRootPath;
 	}
-	
+
 	/**
 	 * Gets the aem site root path.
 	 *
@@ -257,7 +229,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 		return aemSiteRootPath;
 	}
-	
+
 	/**
 	 * Gets the source CMS site root path.
 	 *
@@ -296,76 +268,111 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	}
 
 	/**
-	 * Gets the source content extract.
-	 *
-	 * @return the source content extract
-	 */
-	@Override
-	public BufferedReader getSourceContentExtract(String damPath) {
-
-		/* Reading the JSON File from DAM. */
-		Resource original;
-		BufferedReader br = null;
-		InputStream content = null;
-		// Map<String, Object> param = new HashMap<>();
-		// param.put(ResourceResolverFactory.SUBSERVICE, "readService"); //readService
-		// is System User.
-		try {
-			if(StringUtils.isBlank(damPath)) {
-				damPath = this.sourceContentExtractFilePath;
-			}
-			ResourceResolver resolver = resolverFactory.getAdministrativeResourceResolver(null); // Change this to get resolver using service user.																				
-			Resource resource = resolver.getResource(damPath);
-			Asset asset = resource.adaptTo(Asset.class);
-			original = asset.getOriginal();
-			content = original.adaptTo(InputStream.class);
-			br = new BufferedReader(new InputStreamReader(content, StandardCharsets.UTF_8));
-			return br;
-		} catch (LoginException exc) {
-
-			log.info("Exception while reading the source content file", exc);
-		}
-		return null;
-	}
-
-	/**
 	 * Gets the WP page object.
 	 *
 	 * @return the WP page object
+	 * @throws IOException
 	 */
 	@Override
-	public List<WordPressPage> getWPPagesList(String damPath) {
+	public JsonObject getWPPagesList(String damPath, String configPath) throws IOException {
 
-		BufferedReader pageJSONReader = getSourceContentExtract(damPath);
-		WPPageList wpPageList = null;
-		if(pageJSONReader != null) {
+		return extractPageComponents(damPath, configPath);
 
-			wpPageList = deserializeResult(pageJSONReader, WPPageList.class);
-		}
-		List<WordPressPage> pageList = new ArrayList<>();
-		if(wpPageList != null) {
-
-			for(WordPressPage wpPage : wpPageList.getPageList()) {
-
-				pageList.add(extractWPPageComponents(wpPage));
-				
-			}
-		}
-		return pageList;
+		
 	}
 
-	/**
-	 * Deserialize result.
-	 *
-	 * @param <T>          the generic type
-	 * @param pageContent the response body
-	 * @param declaredType the declared type
-	 * @return the t
-	 */
-	public <T extends Object> T deserializeResult(final BufferedReader pageContent, final Class<T> declaredType) {
+	public JsonObject extractPageComponents(String damPath, String configPath) throws IOException {
+		WordPressPage wpPage = new WordPressPage();
+		JsonObject jObj = null;
+		if (damPath != null) {
 
-		Gson gson = new Gson();
-		return gson.fromJson(pageContent, declaredType);
+			// String pageHTML = pageReader.toString();
+
+			Document html = Jsoup.connect(damPath).get();
+			Elements elements = html.getAllElements();
+			int counter = 0;
+			jObj = getHTMLElementsToMap(configPath, elements);
+			
+		}
+		return jObj;
+	}
+
+	public JsonObject getHTMLElementsToMap(String configPath, Elements elements) throws IOException {
+		File myFile = new File("C:\\Users\\002TT8744\\Downloads\\" + configPath);
+		FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
+		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
+		XSSFSheet mySheet = myWorkBook.getSheetAt(0); // Get iterator to all the rows in current sheet
+		Iterator<Row> rowIterator = mySheet.iterator();
+		JsonObject jObj = new JsonObject();
+		while (rowIterator.hasNext()) {
+			Row row = rowIterator.next();
+			Cell cell = row.getCell(8);
+			Cell cellChild = row.getCell(9);
+			DataFormatter df = new DataFormatter();
+			String cellValueChild = df.formatCellValue(cellChild);
+			String cellValue = df.formatCellValue(cell);
+			Element el = elements.get(0);
+			if (!cellValue.equals("")) {
+				Elements nodeName = el.getElementsByTag(cellValue);
+				if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
+					jObj.add(row.getCell(1).getStringCellValue(), getJsonComponentList(nodeName, row));
+					elements.select(cellValue).remove();
+				} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
+					String[] childArray = cellValueChild.split(",");
+
+					for (Element childEle : nodeName) {
+						Elements childElements = childEle.getElementsByTag(childArray[0]);
+						Boolean matched = findPossibility(childArray, childEle);
+						if (matched == true) {
+							jObj.add(row.getCell(1).getStringCellValue(),
+									getJsonComponentList(childElements, row));
+							elements.select(cellValue).remove();
+						}
+					}
+				}
+			}
+		}
+		jObj = new Gson().fromJson(jObj, JsonObject.class);
+
+		return jObj;
+	}
+
+	private Boolean findPossibility(String[] childArray, Element childEle) {
+		Elements childElements = childEle.getElementsByTag(childArray[0]);
+
+		if (!childElements.isEmpty()) {
+			for (Element el : childElements) {
+				Elements elElements = el.getElementsByTag(childArray[1]);
+				if (!elElements.isEmpty()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public JsonArray getJsonComponentList(Elements nodeName, Row row) {
+		String cellProp = row.getCell(7).getStringCellValue();
+		String[] convertedPropArray = cellProp.split(",");
+		Map<String, String> map = new HashMap<String, String>();
+		String resType = row.getCell(5).getStringCellValue();
+		for (String s : convertedPropArray) {
+			String[] t = s.split("=");
+			map.put(t[0], t[1]);
+		}
+
+		JsonArray jArr = new JsonArray();
+		for (Element elc : nodeName) {
+			JsonObject jObj = new JsonObject();
+			jObj.addProperty("cq:resourceType", resType);
+			for (String s : map.keySet()) {
+				String source = elc.attr(s);
+				jObj.addProperty(map.get(s), source);
+			}
+			jArr.add(jObj.toString());
+		}
+		return jArr;
+
 	}
 
 	/**
@@ -373,57 +380,26 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 *
 	 * @param wpPage the wp page
 	 * @return the word press page
+	 * 
 	 */
+
 	@Override
-	public WordPressPage extractWPPageComponents(WordPressPage wpPage) {
-
-		if(wpPage != null && wpPage.getContent() != null && StringUtils.isNotBlank(wpPage.getContent().getRendered())) {
-
-			String pageHTML = wpPage.getContent().getRendered();
-			Document html = Jsoup.parse(pageHTML);
-			Elements elements = html.getAllElements();
-			int counter = 0;
-			List<WPComponent> componentsList = new ArrayList<>();
-			Map<String, String> htmlElementsToAEMComponentMap = MigrationUtil.getHTMLElementsToAEMComponentMap(this.htmlElementstoParseList);
-			for(Element element : elements) {
-
-				WPComponent component = MigrationUtil.getComponent(element, htmlElementsToAEMComponentMap);
-				if(component != null) {
-
-					log.info("Element names are {} && {}", element.nodeName(), element.parent().nodeName());
-					component.setAemDAMRootPath(this.aemDAMRootPath);
-					component.setSourceCMSDAMRootPath(this.sourceDAMRootPath);
-					componentsList.add(component);
-					counter++;
-				}
-			}
-			log.info("Number of components {}", counter);
-			wpPage.setWpComponentsList(componentsList);
-		}
-		return wpPage;
-	}
-
-	/**
-	 * Gets the AEM page create script.
-	 *
-	 * @param aemPageList the aem page list
-	 * @return the AEM page create script
-	 */
-	@Override
-	public String getAEMPageCreateScript(List<AEMPage> aemPageList) {
+	public String getAEMPageCreateScript(JsonObject stringJson) {
 
 		StringBuilder sb = new StringBuilder();
-		
+
 		String pagePath = null;
 
+		List<AEMPage> aemPageList = null; 
 		int counter = 1;
 		for (AEMPage aemPage : aemPageList) {
 
-			sb.append(":: ## ******************Page count " + counter + " current page title " + aemPage.getJcrContent().getJcr_title());
+			sb.append(":: ## ******************Page count " + counter + " current page title "
+					+ aemPage.getJcrContent().getJcr_title());
 			sb.append("\n\n");
-			
+
 			pagePath = MigrationUtil.getPagePath(aemPage, this.aemSiteRootPath, this.sourceCMSSiteRootPath);
-			
+
 			sb.append("curl -u admin:admin -X POST -d \"jcr:primaryType=");
 			sb.append(aemPage.getJcr_primaryType() + "\"");
 			sb.append(" -d \"jcr:content/jcr:primaryType=");
@@ -467,9 +443,9 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 */
 	@Override
 	public String getAEMPageJSON(List<AEMPage> aemPage) {
-		
-		if(aemPage != null) {
-			
+
+		if (aemPage != null) {
+
 			Gson gson = new Gson();
 			return MigrationUtil.getAEMPageJSON(gson.toJson(aemPage), this.aemObjToJCRPropMap);
 		}
@@ -484,9 +460,9 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 */
 	@Override
 	public String createAEMPage(AEMPage aemPage, String destPath) {
-		
+
 		URL url;
-		if(StringUtils.isBlank(destPath)) {
+		if (StringUtils.isBlank(destPath)) {
 			destPath = this.aemSiteRootPath;
 		}
 		String pagePath = MigrationUtil.getPagePath(aemPage, destPath, this.sourceCMSSiteRootPath);
@@ -504,11 +480,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			httpConn.setDoOutput(true);
 			OutputStreamWriter writer = new OutputStreamWriter(httpConn.getOutputStream());
 			StringBuilder sb = new StringBuilder();
-			sb.append("jcr:primaryType=" + aemPage.getJcr_primaryType()); 
-			sb.append("&jcr:content/jcr:primaryType=" + aemPage.getJcrContent().getJcr_primaryType()); 
-			sb.append("&jcr:content/jcr:title=" + aemPage.getJcrContent().getJcr_title()); 
-			sb.append("&jcr:content/cq:template=" + aemPage.getJcrContent().getCq_template()); 
-			sb.append("&jcr:content/sling:resourceType=" + aemPage.getJcrContent().getSling_resourceType()); 
+			sb.append("jcr:primaryType=" + aemPage.getJcr_primaryType());
+			sb.append("&jcr:content/jcr:primaryType=" + aemPage.getJcrContent().getJcr_primaryType());
+			sb.append("&jcr:content/jcr:title=" + aemPage.getJcrContent().getJcr_title());
+			sb.append("&jcr:content/cq:template=" + aemPage.getJcrContent().getCq_template());
+			sb.append("&jcr:content/sling:resourceType=" + aemPage.getJcrContent().getSling_resourceType());
 			sb.append("&jcr:content/root/layout=responsiveGrid");
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/layout=responsiveGrid");
@@ -540,10 +516,10 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			return pagePath;
 
 		} catch (MalformedURLException e) {
-			
+
 			log.error("MalformedURLException", e);
 		} catch (IOException ioExc) {
-			
+
 			log.error("IOException", ioExc);
 		}
 		return null;

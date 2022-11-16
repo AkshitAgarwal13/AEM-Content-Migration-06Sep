@@ -1,10 +1,12 @@
 package com.aem.migration.core.services;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.List;
 
 import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
+import com.google.gson.JsonObject;
 
 /**
  * The Interface ContentProcessorService.
@@ -20,18 +22,12 @@ public interface ContentProcessorService {
 
 	
 	/**
-	 * Gets the source content extract.
-	 *
-	 * @return the source content extract
-	 */
-	public BufferedReader getSourceContentExtract(String damPath);
-	
-	/**
 	 * Gets the WP page object.
 	 *
 	 * @return the WP page object
+	 * @throws IOException 
 	 */
-	public List<WordPressPage> getWPPagesList(String damPath);
+	public JsonObject getWPPagesList(String damPath,String configPath) throws IOException;
 	
 	/**
 	 * Extract WP page components.
@@ -39,15 +35,8 @@ public interface ContentProcessorService {
 	 * @param wpPage the wp page
 	 * @return the word press page
 	 */
-	public WordPressPage extractWPPageComponents(WordPressPage wpPage);
 	
-	/**
-	 * Gets the AEM page create script.
-	 *
-	 * @param aemPage the aem page
-	 * @return the AEM page create script
-	 */
-	public String getAEMPageCreateScript(List<AEMPage> aemPage);
+	public String getAEMPageCreateScript(JsonObject aemPage);
 
 
 	/**
@@ -66,5 +55,8 @@ public interface ContentProcessorService {
 	 * @return the string
 	 */
 	public String createAEMPage(AEMPage aemPage, String destPath);
+
+
+
 
 }

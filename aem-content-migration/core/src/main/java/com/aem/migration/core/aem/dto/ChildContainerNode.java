@@ -52,4 +52,5 @@ public class ChildContainerNode {
 		this.sling_resourceType = "migration/components/container";
 		this.componentsList = MigrationUtil.getAEMComponentsList(wpPage);
 	}
+	
 }

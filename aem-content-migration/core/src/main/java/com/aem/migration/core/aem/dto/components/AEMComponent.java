@@ -248,5 +248,6 @@ public class AEMComponent {
 			this.text = wpComponent.getText();
 		}
 	}
+	
 
 }
