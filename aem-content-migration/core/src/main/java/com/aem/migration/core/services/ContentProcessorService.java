@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
@@ -27,7 +28,7 @@ public interface ContentProcessorService {
 	 * @return the WP page object
 	 * @throws IOException 
 	 */
-	public JsonObject getWPPagesList(String damPath,String configPath) throws IOException;
+	public JsonArray getWPPagesList(String damPath,String configPath) throws IOException;
 	
 	/**
 	 * Extract WP page components.
@@ -54,7 +55,7 @@ public interface ContentProcessorService {
 	 * @param aemPage the aem page
 	 * @return the string
 	 */
-	public String createAEMPage(AEMPage aemPage, String destPath);
+	public String createAEMPage(JsonObject jOb, int counterComp, String destPath);
 
 
 

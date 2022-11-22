@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -274,16 +275,15 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @throws IOException
 	 */
 	@Override
-	public JsonObject getWPPagesList(String damPath, String configPath) throws IOException {
+	public JsonArray getWPPagesList(String damPath, String configPath) throws IOException {
 
 		return extractPageComponents(damPath, configPath);
 
-		
 	}
 
-	public JsonObject extractPageComponents(String damPath, String configPath) throws IOException {
+	public JsonArray extractPageComponents(String damPath, String configPath) throws IOException {
 		WordPressPage wpPage = new WordPressPage();
-		JsonObject jObj = null;
+		JsonArray jArr = null;
 		if (damPath != null) {
 
 			// String pageHTML = pageReader.toString();
@@ -291,19 +291,19 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Document html = Jsoup.connect(damPath).get();
 			Elements elements = html.getAllElements();
 			int counter = 0;
-			jObj = getHTMLElementsToMap(configPath, elements);
-			
+			jArr = getHTMLElementsToMap(configPath, elements);
+
 		}
-		return jObj;
+		return jArr;
 	}
 
-	public JsonObject getHTMLElementsToMap(String configPath, Elements elements) throws IOException {
+	public JsonArray getHTMLElementsToMap(String configPath, Elements elements) throws IOException {
 		File myFile = new File("C:\\Users\\002TT8744\\Downloads\\" + configPath);
 		FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
 		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
 		XSSFSheet mySheet = myWorkBook.getSheetAt(0); // Get iterator to all the rows in current sheet
 		Iterator<Row> rowIterator = mySheet.iterator();
-		JsonObject jObj = new JsonObject();
+		JsonArray jArr = new JsonArray();
 		while (rowIterator.hasNext()) {
 			Row row = rowIterator.next();
 			Cell cell = row.getCell(8);
@@ -315,7 +315,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			if (!cellValue.equals("")) {
 				Elements nodeName = el.getElementsByTag(cellValue);
 				if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
-					jObj.add(row.getCell(1).getStringCellValue(), getJsonComponentList(nodeName, row));
+					jArr = getJsonComponentList(nodeName, row);
 					elements.select(cellValue).remove();
 				} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
 					String[] childArray = cellValueChild.split(",");
@@ -324,17 +324,15 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 						Elements childElements = childEle.getElementsByTag(childArray[0]);
 						Boolean matched = findPossibility(childArray, childEle);
 						if (matched == true) {
-							jObj.add(row.getCell(1).getStringCellValue(),
-									getJsonComponentList(childElements, row));
+							jArr.add(getJsonComponentList(childElements, row));
 							elements.select(cellValue).remove();
 						}
 					}
 				}
 			}
 		}
-		jObj = new Gson().fromJson(jObj, JsonObject.class);
 
-		return jObj;
+		return jArr;
 	}
 
 	private Boolean findPossibility(String[] childArray, Element childEle) {
@@ -353,6 +351,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 	public JsonArray getJsonComponentList(Elements nodeName, Row row) {
 		String cellProp = row.getCell(7).getStringCellValue();
+		String cellPropFixed = row.getCell(10).getStringCellValue();
 		String[] convertedPropArray = cellProp.split(",");
 		Map<String, String> map = new HashMap<String, String>();
 		String resType = row.getCell(5).getStringCellValue();
@@ -365,11 +364,12 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		for (Element elc : nodeName) {
 			JsonObject jObj = new JsonObject();
 			jObj.addProperty("cq:resourceType", resType);
+			jObj.addProperty("componentContainer", cellPropFixed);
 			for (String s : map.keySet()) {
 				String source = elc.attr(s);
 				jObj.addProperty(map.get(s), source);
 			}
-			jArr.add(jObj.toString());
+			jArr.add(jObj);
 		}
 		return jArr;
 
@@ -390,7 +390,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 		String pagePath = null;
 
-		List<AEMPage> aemPageList = null; 
+		List<AEMPage> aemPageList = null;
 		int counter = 1;
 		for (AEMPage aemPage : aemPageList) {
 
@@ -459,13 +459,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @return the string
 	 */
 	@Override
-	public String createAEMPage(AEMPage aemPage, String destPath) {
+	public String createAEMPage(JsonObject jOb,int counterComp, String destPath) {
 
 		URL url;
 		if (StringUtils.isBlank(destPath)) {
 			destPath = this.aemSiteRootPath;
 		}
-		String pagePath = MigrationUtil.getPagePath(aemPage, destPath, this.sourceCMSSiteRootPath);
+		String pagePath = destPath;
 		try {
 			url = new URL(pagePath);
 			HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -480,29 +480,36 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			httpConn.setDoOutput(true);
 			OutputStreamWriter writer = new OutputStreamWriter(httpConn.getOutputStream());
 			StringBuilder sb = new StringBuilder();
-			sb.append("jcr:primaryType=" + aemPage.getJcr_primaryType());
-			sb.append("&jcr:content/jcr:primaryType=" + aemPage.getJcrContent().getJcr_primaryType());
-			sb.append("&jcr:content/jcr:title=" + aemPage.getJcrContent().getJcr_title());
-			sb.append("&jcr:content/cq:template=" + aemPage.getJcrContent().getCq_template());
-			sb.append("&jcr:content/sling:resourceType=" + aemPage.getJcrContent().getSling_resourceType());
+			Set<String> k = jOb.keySet();
+			
+			sb.append("jcr:primaryType=" + "nt:unstructured");
+			sb.append("&jcr:content/jcr:primaryType=" + "nt:unstructured");
+			sb.append("&jcr:content/jcr:title=" + "NewPage");
+			sb.append("&jcr:content/cq:template=" + "test3");
+			sb.append("&jcr:content/sling:resourceType=" + "test4");
 			sb.append("&jcr:content/root/layout=responsiveGrid");
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/layout=responsiveGrid");
 			sb.append("&jcr:content/root/container/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/container/sling:resourceType=migration/components/container");
-
-			List<AEMComponent> components = aemPage.getJcrContent().getRootNode().getContainer().getChildContainerNode()
-					.getComponentsList();
-			Map<String, String[]> mapCompProp = MigrationUtil
-					.getComponentJCRPropertiesMap(this.aemComponentPropertyMapping);
-			if (MapUtils.isNotEmpty(mapCompProp)) {
-
-				for (int count = 0; count < components.size(); count++) {
-
-					AEMComponent aemComp = components.get(count);
-					sb.append(MigrationUtil.getComponentJCRProperties(aemComp, mapCompProp, false));
+			String componentContainerPath = jOb.get("componentContainer").getAsString();
+			String componentContainerPathVal = componentContainerPath + counterComp;
+			for(String prop : k) {
+				sb.append(componentContainerPathVal+"/"+prop+'=' + jOb.get(prop).getAsString());
 				}
-			}
+			/*
+			 * List<AEMComponent> components =
+			 * aemPage.getJcrContent().getRootNode().getContainer().getChildContainerNode()
+			 * .getComponentsList(); Map<String, String[]> mapCompProp = MigrationUtil
+			 * .getComponentJCRPropertiesMap(this.aemComponentPropertyMapping); if
+			 * (MapUtils.isNotEmpty(mapCompProp)) {
+			 * 
+			 * for (int count = 0; count < components.size(); count++) {
+			 * 
+			 * AEMComponent aemComp = components.get(count);
+			 * sb.append(MigrationUtil.getComponentJCRProperties(aemComp, mapCompProp,
+			 * false)); } }
+			 */
 			writer.write(sb.toString());
 			writer.flush();
 			writer.close();
@@ -513,7 +520,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Scanner s = new Scanner(responseStream).useDelimiter("\\A");
 			String response = s.hasNext() ? s.next() : "";
 			log.info(response);
-			return pagePath;
+			return sb.toString();
 
 		} catch (MalformedURLException e) {
 

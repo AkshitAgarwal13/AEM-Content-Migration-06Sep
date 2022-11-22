@@ -3,6 +3,7 @@ package com.aem.migration.core.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.Servlet;
@@ -19,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.services.ContentProcessorService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -58,27 +61,31 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		List<AEMPage> aemPageList = new ArrayList<>();
 		
 		
-		JsonObject jsonObject = contentProcessor.getWPPagesList(damPath,configPath);
+		JsonArray jsonArray = contentProcessor.getWPPagesList(damPath,configPath);
 		//String curlScript = contentProcessor.getAEMPageCreateScript(jsonObject);
 		if(StringUtils.equals(request.getParameter("createPages"), "true")) {
 
 			response.setContentType("text/html;charset=UTF-8");
 			String pageURL = null;
 			String aemRootNodePath = request.getParameter("destPath");
-			for (int count = 0; count < aemPageList.size(); count++) {
-
-				pageURL = contentProcessor.createAEMPage(aemPageList.get(count), aemRootNodePath) + ".html";
-				out.write(
-						(count + 1) + ". Migrating page(source) " + aemPageList.get(count).getTempPagePath() + "<br>");
+			int counterComp=0;
+			Iterator<JsonElement> outputSchemaIterator = jsonArray.iterator();
+			 while(outputSchemaIterator.hasNext()) {
+				  JsonObject field = outputSchemaIterator.next().getAsJsonObject();
+				  
+				pageURL = contentProcessor.createAEMPage(field, counterComp, aemRootNodePath + ".html");
+				counterComp++;
+				out.write(". Migrating page(source)"+ "<br>");
 				out.write("Page created successfully in AEM at path  <a target=\"_blank\" href=\""
 						+ pageURL + "\">"
 						+ pageURL + "</a><br><br>");
-			}
+			 }
+			
 		} else if (StringUtils.equalsIgnoreCase(request.getParameter("showAEMPageJSON"), "true")) {
 
 			response.setContentType("application/json;charset=UTF-8");
 		} else {
-			out.write(jsonObject.toString());
+			out.write(jsonArray.getAsString());
 		}
 	}
 }
