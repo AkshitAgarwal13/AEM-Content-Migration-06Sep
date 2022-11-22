@@ -363,7 +363,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		JsonArray jArr = new JsonArray();
 		for (Element elc : nodeName) {
 			JsonObject jObj = new JsonObject();
-			jObj.addProperty("cq:resourceType", resType);
+			jObj.addProperty("sling:resourceType", resType);
 			jObj.addProperty("componentContainer", cellPropFixed);
 			for (String s : map.keySet()) {
 				String source = elc.attr(s);
@@ -482,16 +482,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			StringBuilder sb = new StringBuilder();
 			Set<String> k = jOb.keySet();
 			
-			sb.append("jcr:primaryType=" + "nt:unstructured");
-			sb.append("&jcr:content/jcr:primaryType=" + "nt:unstructured");
-			sb.append("&jcr:content/jcr:title=" + "NewPage");
-			sb.append("&jcr:content/cq:template=" + "test3");
-			sb.append("&jcr:content/sling:resourceType=" + "test4");
+			sb.append("jcr:primaryType=" + "cq:Page");
 			sb.append("&jcr:content/root/layout=responsiveGrid");
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/layout=responsiveGrid");
 			sb.append("&jcr:content/root/container/sling:resourceType=migration/components/container");
-			sb.append("&jcr:content/root/container/container/sling:resourceType=migration/components/container");
 			String componentContainerPath = jOb.get("componentContainer").getAsString();
 			String componentContainerPathVal = componentContainerPath + counterComp;
 			for(String prop : k) {
