@@ -56,9 +56,10 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		String damPath = request.getParameter("sourcePath");
-		String cmsVal = request.getParameter("cmsVal");
+		//String cmsVal = request.getParameter("cmsVal");
 		String configPath = request.getParameter("configPath");
-		List<AEMPage> aemPageList = new ArrayList<>();
+		//String pageName = request.getParameter("pageName");
+		//List<AEMPage> aemPageList = new ArrayList<>();
 		
 		
 		JsonArray jsonArray = contentProcessor.getWPPagesList(damPath,configPath);
@@ -73,12 +74,12 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 			 while(outputSchemaIterator.hasNext()) {
 				  JsonObject field = outputSchemaIterator.next().getAsJsonObject();
 				  
-				pageURL = contentProcessor.createAEMPage(field, counterComp, aemRootNodePath + ".html");
+				pageURL = contentProcessor.createAEMPage(field, counterComp, aemRootNodePath);
 				counterComp++;
-				out.write(". Migrating page(source)"+ "<br>");
-				out.write("Page created successfully in AEM at path  <a target=\"_blank\" href=\""
-						+ pageURL + "\">"
-						+ pageURL + "</a><br><br>");
+				//out.write(". Migrating page(source)"+ "<br>");
+				out.write("Page created successfully in AEM at path "
+						+ aemRootNodePath+".html" + "<br>");
+				out.write("with component " +pageURL + "<br>");
 			 }
 			
 		} else if (StringUtils.equalsIgnoreCase(request.getParameter("showAEMPageJSON"), "true")) {

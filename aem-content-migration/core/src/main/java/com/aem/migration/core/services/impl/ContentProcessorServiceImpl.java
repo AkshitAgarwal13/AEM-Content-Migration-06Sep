@@ -483,10 +483,15 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Set<String> k = jOb.keySet();
 			
 			sb.append("jcr:primaryType=" + "cq:Page");
+			sb.append("&jcr:content/jcr:primaryType=cq:PageContent");
+			sb.append("&jcr:content/sling:resourceType=migration/components/page");
+			sb.append("&jcr:content/jcr:title="+destPath);
 			sb.append("&jcr:content/root/layout=responsiveGrid");
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/layout=responsiveGrid");
 			sb.append("&jcr:content/root/container/sling:resourceType=migration/components/container");
+			sb.append("&jcr:content/root/container/container/layout=responsiveGrid");
+			sb.append("&jcr:content/root/container/container/sling:resourceType=migration/components/container");
 			String componentContainerPath = jOb.get("componentContainer").getAsString();
 			String componentContainerPathVal = componentContainerPath + counterComp;
 			for(String prop : k) {
@@ -515,7 +520,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Scanner s = new Scanner(responseStream).useDelimiter("\\A");
 			String response = s.hasNext() ? s.next() : "";
 			log.info(response);
-			return sb.toString();
+			return pagePath+componentContainerPathVal;
 
 		} catch (MalformedURLException e) {
 
