@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.day.cq.dam.api.AssetManager;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -26,6 +27,9 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -291,13 +295,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Document html = Jsoup.connect(damPath).get();
 			Elements elements = html.getAllElements();
 			int counter = 0;
-			jArr = getHTMLElementsToMap(configPath, elements);
+			jArr = getHTMLElementsToMap(configPath, elements,damPath);
 
 		}
 		return jArr;
 	}
 
-	public JsonArray getHTMLElementsToMap(String configPath, Elements elements) throws IOException {
+	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath) throws IOException {
 		File myFile = new File("C:\\Users\\002TT8744\\Downloads\\" + configPath);
 		FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
 		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
@@ -315,7 +319,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			if (!cellValue.equals("")) {
 				Elements nodeName = el.getElementsByTag(cellValue);
 				if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
-					jArr = getJsonComponentList(nodeName, row);
+					jArr = getJsonComponentList(nodeName, row,damPath);
 					elements.select(cellValue).remove();
 				} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
 					String[] childArray = cellValueChild.split(",");
@@ -324,7 +328,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 						Elements childElements = childEle.getElementsByTag(childArray[0]);
 						Boolean matched = findPossibility(childArray, childEle);
 						if (matched == true) {
-							jArr.add(getJsonComponentList(childElements, row));
+							jArr.add(getJsonComponentList(childElements, row,damPath));
 							elements.select(cellValue).remove();
 						}
 					}
@@ -349,7 +353,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		return false;
 	}
 
-	public JsonArray getJsonComponentList(Elements nodeName, Row row) {
+	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath) {
 		String cellProp = row.getCell(7).getStringCellValue();
 		String cellPropFixed = row.getCell(10).getStringCellValue();
 		String[] convertedPropArray = cellProp.split(",");
@@ -367,12 +371,48 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			jObj.addProperty("componentContainer", cellPropFixed);
 			for (String s : map.keySet()) {
 				String source = elc.attr(s);
+				if(s.equalsIgnoreCase("src")){
+					source = getDamImagePath(damPath+source);
+				}
 				jObj.addProperty(map.get(s), source);
 			}
 			jArr.add(jObj);
 		}
 		return jArr;
 
+	}
+
+	public String getDamImagePath(String imageUrl){
+		String newFile="";
+		try {
+			String[] splitImageUrl = imageUrl.split("/");
+			int urlLength = splitImageUrl.length;
+			String imageName = splitImageUrl[urlLength - 1];
+			if (imageName.contains("?")) {
+				imageName = imageName.substring(0, imageName.indexOf("?"));
+			}
+			URL url = new URL(imageUrl);
+			InputStream is = url.openStream();
+			Map<String, Object> param = new HashMap<>();
+			param.put(ResourceResolverFactory.SUBSERVICE, "migrationService");
+			ResourceResolver resolver = resolverFactory.getServiceResourceResolver(param);
+			AssetManager assetMgr = resolver.adaptTo(AssetManager.class);
+			newFile = "/content/dam/safe-auto/images/" + imageName;
+			Resource res = resolver.getResource(newFile);
+			if (res == null) {
+				if (imageName.endsWith("svg")) {
+					assetMgr.createAsset(newFile, is, "image/svg+xml", true);
+				} else {
+					assetMgr.createAsset(newFile, is, "image/jpeg", true);
+				}
+			}
+		}
+		catch(LoginException e){
+			log.error("LoginException ",e);
+		}catch(IOException e){
+			log.error("IOException ",e);
+		}
+		return newFile;
 	}
 
 	/**
@@ -485,7 +525,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			sb.append("jcr:primaryType=" + "cq:Page");
 			sb.append("&jcr:content/jcr:primaryType=cq:PageContent");
 			sb.append("&jcr:content/sling:resourceType=migration/components/page");
-			sb.append("&jcr:content/jcr:title="+destPath);
+			sb.append("&jcr:content/jcr:title="+destPath.substring(destPath.lastIndexOf("/")+1));
 			sb.append("&jcr:content/root/layout=responsiveGrid");
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/layout=responsiveGrid");
