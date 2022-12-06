@@ -28,7 +28,7 @@ public interface ContentProcessorService {
 	 * @return the WP page object
 	 * @throws IOException 
 	 */
-	public JsonArray getWPPagesList(String damPath,String configPath) throws IOException;
+	public JsonArray getWPPagesList(String damPath,String configPath, String imagesPath) throws IOException;
 	
 	/**
 	 * Extract WP page components.

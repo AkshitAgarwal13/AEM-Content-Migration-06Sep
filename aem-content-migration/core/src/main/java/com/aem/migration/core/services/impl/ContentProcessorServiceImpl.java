@@ -279,13 +279,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @throws IOException
 	 */
 	@Override
-	public JsonArray getWPPagesList(String damPath, String configPath) throws IOException {
+	public JsonArray getWPPagesList(String damPath, String configPath, String imagesPath) throws IOException {
 
-		return extractPageComponents(damPath, configPath);
+		return extractPageComponents(damPath, configPath,imagesPath);
 
 	}
 
-	public JsonArray extractPageComponents(String damPath, String configPath) throws IOException {
+	public JsonArray extractPageComponents(String damPath, String configPath, String imagesPath) throws IOException {
 		WordPressPage wpPage = new WordPressPage();
 		JsonArray jArr = null;
 		if (damPath != null) {
@@ -295,13 +295,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			Document html = Jsoup.connect(damPath).get();
 			Elements elements = html.getAllElements();
 			int counter = 0;
-			jArr = getHTMLElementsToMap(configPath, elements,damPath);
+			jArr = getHTMLElementsToMap(configPath, elements,damPath, imagesPath);
 
 		}
 		return jArr;
 	}
 
-	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath) throws IOException {
+	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath, String imagesPath) throws IOException {
 		File myFile = new File("C:\\Users\\002TT8744\\Downloads\\" + configPath);
 		FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
 		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
@@ -316,10 +316,11 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			String cellValueChild = df.formatCellValue(cellChild);
 			String cellValue = df.formatCellValue(cell);
 			Element el = elements.get(0);
+			JsonArray jArr1 = new JsonArray();
 			if (!cellValue.equals("")) {
 				Elements nodeName = el.getElementsByTag(cellValue);
 				if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
-					jArr = getJsonComponentList(nodeName, row,damPath);
+					jArr1 = getJsonComponentList(nodeName, row,damPath,imagesPath);
 					elements.select(cellValue).remove();
 				} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
 					String[] childArray = cellValueChild.split(",");
@@ -328,12 +329,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 						Elements childElements = childEle.getElementsByTag(childArray[0]);
 						Boolean matched = findPossibility(childArray, childEle);
 						if (matched == true) {
-							jArr.add(getJsonComponentList(childElements, row,damPath));
+							jArr1.add(getJsonComponentList(childElements, row,damPath,imagesPath));
 							elements.select(cellValue).remove();
 						}
 					}
 				}
 			}
+			jArr.addAll(jArr1);
 		}
 
 		return jArr;
@@ -353,36 +355,46 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		return false;
 	}
 
-	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath) {
+	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath, String imagesPath) {
 		String cellProp = row.getCell(7).getStringCellValue();
 		String cellPropFixed = row.getCell(10).getStringCellValue();
 		String[] convertedPropArray = cellProp.split(",");
 		Map<String, String> map = new HashMap<String, String>();
 		String resType = row.getCell(5).getStringCellValue();
-		for (String s : convertedPropArray) {
-			String[] t = s.split("=");
-			map.put(t[0], t[1]);
-		}
-
-		JsonArray jArr = new JsonArray();
-		for (Element elc : nodeName) {
-			JsonObject jObj = new JsonObject();
-			jObj.addProperty("sling:resourceType", resType);
-			jObj.addProperty("componentContainer", cellPropFixed);
-			for (String s : map.keySet()) {
-				String source = elc.attr(s);
-				if(s.equalsIgnoreCase("src")){
-					source = getDamImagePath(damPath+source);
+			String textKey="";
+			for (String s : convertedPropArray) {
+				String[] t = s.split("=");
+				int size = t.length;
+				if(size==2) {
+					map.put(t[0], t[1]);
 				}
-				jObj.addProperty(map.get(s), source);
+				else{
+					textKey=t[0];
+					map.put(t[0],"");
+				}
 			}
-			jArr.add(jObj);
-		}
+		JsonArray jArr = new JsonArray();
+			for (Element elc : nodeName) {
+				JsonObject jObj = new JsonObject();
+				jObj.addProperty("sling:resourceType", resType);
+				jObj.addProperty("componentContainer", cellPropFixed);
+				for (String s : map.keySet()) {
+					String source = elc.attr(s);
+					if(s.equalsIgnoreCase("src")){
+						source = getDamImagePath(damPath+source,imagesPath);
+					}
+					if(s.equalsIgnoreCase(textKey)){
+						jObj.addProperty(textKey, elc.text());
+					}
+					jObj.addProperty(map.get(s), source);
+				}
+				jArr.add(jObj);
+			}
 		return jArr;
 
 	}
 
-	public String getDamImagePath(String imageUrl){
+	public String getDamImagePath(String imageUrl, String imagesPath){
 		String newFile="";
 		try {
 			String[] splitImageUrl = imageUrl.split("/");
@@ -397,7 +409,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			param.put(ResourceResolverFactory.SUBSERVICE, "migrationService");
 			ResourceResolver resolver = resolverFactory.getServiceResourceResolver(param);
 			AssetManager assetMgr = resolver.adaptTo(AssetManager.class);
-			newFile = "/content/dam/safe-auto/images/" + imageName;
+			newFile = imagesPath + imageName;
 			Resource res = resolver.getResource(newFile);
 			if (res == null) {
 				if (imageName.endsWith("svg")) {
@@ -420,7 +432,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 *
 	 * @param wpPage the wp page
 	 * @return the word press page
-	 * 
+	 *
 	 */
 
 	@Override
@@ -521,7 +533,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			OutputStreamWriter writer = new OutputStreamWriter(httpConn.getOutputStream());
 			StringBuilder sb = new StringBuilder();
 			Set<String> k = jOb.keySet();
-			
+
 			sb.append("jcr:primaryType=" + "cq:Page");
 			sb.append("&jcr:content/jcr:primaryType=cq:PageContent");
 			sb.append("&jcr:content/sling:resourceType=migration/components/page");
@@ -536,16 +548,16 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			String componentContainerPathVal = componentContainerPath + counterComp;
 			for(String prop : k) {
 				sb.append(componentContainerPathVal+"/"+prop+'=' + jOb.get(prop).getAsString());
-				}
+			}
 			/*
 			 * List<AEMComponent> components =
 			 * aemPage.getJcrContent().getRootNode().getContainer().getChildContainerNode()
 			 * .getComponentsList(); Map<String, String[]> mapCompProp = MigrationUtil
 			 * .getComponentJCRPropertiesMap(this.aemComponentPropertyMapping); if
 			 * (MapUtils.isNotEmpty(mapCompProp)) {
-			 * 
+			 *
 			 * for (int count = 0; count < components.size(); count++) {
-			 * 
+			 *
 			 * AEMComponent aemComp = components.get(count);
 			 * sb.append(MigrationUtil.getComponentJCRProperties(aemComp, mapCompProp,
 			 * false)); } }
