@@ -56,6 +56,7 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		String damPath = request.getParameter("sourcePath");
+		String templatePath = request.getParameter("templatePath");
 		//String cmsVal = request.getParameter("cmsVal");
 		String configPath = request.getParameter("configPath");
 		String imagesPath = request.getParameter("imagesPath");
@@ -75,7 +76,7 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 			 while(outputSchemaIterator.hasNext()) {
 				  JsonObject field = outputSchemaIterator.next().getAsJsonObject();
 				  
-				pageURL = contentProcessor.createAEMPage(field, counterComp, aemRootNodePath);
+				pageURL = contentProcessor.createAEMPage(field, counterComp, aemRootNodePath, templatePath);
 				counterComp++;
 				//out.write(". Migrating page(source)"+ "<br>");
 				out.write("Page created successfully in AEM at path "

@@ -516,7 +516,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @return the string
 	 */
 	@Override
-	public String createAEMPage(JsonObject jOb,int counterComp, String destPath) {
+	public String createAEMPage(JsonObject jOb,int counterComp, String destPath, String templatePath) {
 
 		URL url;
 		if (StringUtils.isBlank(destPath)) {
@@ -542,6 +542,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			sb.append("jcr:primaryType=" + "cq:Page");
 			sb.append("&jcr:content/jcr:primaryType=cq:PageContent");
 			sb.append("&jcr:content/sling:resourceType=migration/components/page");
+			sb.append("&jcr:content/cq:template="+templatePath);
 			sb.append("&jcr:content/jcr:title="+destPath.substring(destPath.lastIndexOf("/")+1));
 			sb.append("&jcr:content/root/layout=responsiveGrid");
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");

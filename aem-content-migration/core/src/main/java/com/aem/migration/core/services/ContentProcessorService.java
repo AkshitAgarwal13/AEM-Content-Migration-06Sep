@@ -55,7 +55,7 @@ public interface ContentProcessorService {
 	 * @param aemPage the aem page
 	 * @return the string
 	 */
-	public String createAEMPage(JsonObject jOb, int counterComp, String destPath);
+	public String createAEMPage(JsonObject jOb, int counterComp, String destPath, String templatePath);
 
 
 
