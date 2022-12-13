@@ -302,42 +302,47 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	}
 
 	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath, String imagesPath) throws IOException {
-		File myFile = new File("C:\\Users\\002TT8744\\Downloads\\" + configPath);
-		FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
-		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
-		XSSFSheet mySheet = myWorkBook.getSheetAt(0); // Get iterator to all the rows in current sheet
-		Iterator<Row> rowIterator = mySheet.iterator();
 		JsonArray jArr = new JsonArray();
-		while (rowIterator.hasNext()) {
-			Row row = rowIterator.next();
-			Cell cell = row.getCell(8);
-			Cell cellChild = row.getCell(9);
-			DataFormatter df = new DataFormatter();
-			String cellValueChild = df.formatCellValue(cellChild);
-			String cellValue = df.formatCellValue(cell);
-			Element el = elements.get(0);
-			JsonArray jArr1 = new JsonArray();
-			if (!cellValue.equals("")) {
-				Elements nodeName = el.getElementsByTag(cellValue);
-				if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
-					jArr1 = getJsonComponentList(nodeName, row,damPath,imagesPath);
-					elements.select(cellValue).remove();
-				} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
-					String[] childArray = cellValueChild.split(",");
+		for (Element element : elements) {
+			File myFile = new File("C:\\Users\\000EKZ744\\Downloads\\" + configPath);
+			FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
+			XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
+			XSSFSheet mySheet = myWorkBook.getSheetAt(0); // Get iterator to all the rows in current sheet
+			Iterator<Row> rowIterator = mySheet.iterator();
+			while (rowIterator.hasNext()) {
+				element.getElementsByTag(element.tagName());
+				Row row = rowIterator.next();
+				Cell cell = row.getCell(8);
+				Cell cellChild = row.getCell(9);
+				DataFormatter df = new DataFormatter();
+				String cellValueChild = df.formatCellValue(cellChild);
+				String cellValue = df.formatCellValue(cell);
 
-					for (Element childEle : nodeName) {
-						Elements childElements = childEle.getElementsByTag(childArray[0]);
-						Boolean matched = findPossibility(childArray, childEle);
-						if (matched == true) {
-							jArr1.add(getJsonComponentList(childElements, row,damPath,imagesPath));
-							elements.select(cellValue).remove();
+				JsonArray jArrChild = new JsonArray();
+				if (element.tagName().equals(cellValue)) {
+					if (!cellValue.equals("")) {
+						Elements nodeName = element.getElementsByTag(element.tagName());
+						if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
+							jArrChild = getJsonComponentList(nodeName, row,damPath,imagesPath);
+
+						} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
+							String[] childArray = cellValueChild.split(",");
+
+							for (Element childEle : nodeName) {
+								Elements childElements = childEle.getElementsByTag(childArray[0]);
+								Boolean matched = findPossibility(childArray, childEle);
+								if (matched == true) {
+									jArrChild.add(getJsonComponentList(childElements, row,damPath,imagesPath));
+									elements.select(cellValue).remove();
+								}
+							}
 						}
 					}
 				}
+				jArr.addAll(jArrChild);
 			}
-			jArr.addAll(jArr1);
-		}
 
+		}
 		return jArr;
 	}
 
@@ -361,35 +366,35 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		String[] convertedPropArray = cellProp.split(",");
 		Map<String, String> map = new HashMap<String, String>();
 		String resType = row.getCell(5).getStringCellValue();
-			String textKey="";
-			for (String s : convertedPropArray) {
-				String[] t = s.split("=");
-				int size = t.length;
-				if(size==2) {
-					map.put(t[0], t[1]);
-				}
-				else{
-					textKey=t[0];
-					map.put(t[0],"");
-				}
+		String textKey="";
+		for (String s : convertedPropArray) {
+			String[] t = s.split("=");
+			int size = t.length;
+			if(size==2) {
+				map.put(t[0], t[1]);
 			}
+			else{
+				textKey=t[0];
+				map.put(t[0],"");
+			}
+		}
 		JsonArray jArr = new JsonArray();
-			for (Element elc : nodeName) {
-				JsonObject jObj = new JsonObject();
-				jObj.addProperty("sling:resourceType", resType);
-				jObj.addProperty("componentContainer", cellPropFixed);
-				for (String s : map.keySet()) {
-					String source = elc.attr(s);
-					if(s.equalsIgnoreCase("src")){
-						source = getDamImagePath(damPath+source,imagesPath);
-					}
-					if(s.equalsIgnoreCase(textKey)){
-						jObj.addProperty(textKey, elc.text());
-					}
-					jObj.addProperty(map.get(s), source);
+		for (Element elc : nodeName) {
+			JsonObject jObj = new JsonObject();
+			jObj.addProperty("sling:resourceType", resType);
+			jObj.addProperty("componentContainer", cellPropFixed);
+			for (String s : map.keySet()) {
+				String source = elc.attr(s);
+				if(s.equalsIgnoreCase("src")){
+					source = getDamImagePath(damPath+source,imagesPath);
 				}
-				jArr.add(jObj);
+				if(s.equalsIgnoreCase(textKey)){
+					jObj.addProperty(textKey, elc.text());
+				}
+				jObj.addProperty(map.get(s), source);
 			}
+			jArr.add(jObj);
+		}
 		return jArr;
 
 	}
