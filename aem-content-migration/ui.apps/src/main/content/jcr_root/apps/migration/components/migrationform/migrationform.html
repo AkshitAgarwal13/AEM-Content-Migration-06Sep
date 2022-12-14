@@ -6,17 +6,17 @@
 	<br>	
 
 		<label for="configfile">Upload configurations from file system in excel:           &nbsp;&nbsp;  </label>
-		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="file" name="config" id="config">
+		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="config" id="config">
 	<br>	
 	<label for="url">AEM Site Root Path: </label>
 	<input style="margin-left: 270px; margin-top:15px;margin-bottom:15px; width:50%;" type="text" name="url" id="url">
 	<br>
 		<label for="imagesPath">Path of images to be uploaded in DAM           &nbsp;&nbsp;  </label>
-		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="attachment" id="imagesPath">
+		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="imagesPath" id="imagesPath">
 		<br>
 		<br>
 		<label for="templatePath">Template path </label>
-		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="attachment" id="templatePath">
+		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="templatePath" id="templatePath">
 		<br>
 	<button style="margin-left: 420px; margin-top:15px;margin-bottom:35px;" id="button_2" value="val_2" name="but2">Create Pages</button>
 	</form>
@@ -30,7 +30,7 @@
 				var destPath= document.getElementById("url").value;
                 var imagesPath = document.getElementById("imagesPath").value;
                 var templatePath = document.getElementById("templatePath").value;
-				var configPath= document.getElementById("config").files[0].name;
+				var configPath= document.getElementById("config").value;
 				e.preventDefault();
 				$.ajax({
 					type: "GET",

@@ -56,6 +56,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import com.day.cq.dam.api.Asset;
+import com.day.cq.dam.api.AssetManager;
+import com.day.cq.dam.api.Rendition;
+
 /**
  * The Class ContentProcessorServiceImpl.
  */
@@ -301,50 +305,64 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		return jArr;
 	}
 
-	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath, String imagesPath) throws IOException {
-		JsonArray jArr = new JsonArray();
-		for (Element element : elements) {
-			File myFile = new File("C:\\Users\\000EKZ744\\Downloads\\" + configPath);
-			FileInputStream fis = new FileInputStream(myFile); // Finds the workbook instance for XLSX file
-			XSSFWorkbook myWorkBook = new XSSFWorkbook(fis); // Return first sheet from the XLSX workbook
-			XSSFSheet mySheet = myWorkBook.getSheetAt(0); // Get iterator to all the rows in current sheet
-			Iterator<Row> rowIterator = mySheet.iterator();
-			while (rowIterator.hasNext()) {
-				element.getElementsByTag(element.tagName());
-				Row row = rowIterator.next();
-				Cell cell = row.getCell(8);
-				Cell cellChild = row.getCell(9);
-				DataFormatter df = new DataFormatter();
-				String cellValueChild = df.formatCellValue(cellChild);
-				String cellValue = df.formatCellValue(cell);
-
-				JsonArray jArrChild = new JsonArray();
-				if (element.tagName().equals(cellValue)) {
-					if (!cellValue.equals("")) {
-						Elements nodeName = element.getElementsByTag(element.tagName());
-						if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
-							jArrChild = getJsonComponentList(nodeName, row,damPath,imagesPath);
-
-						} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
-							String[] childArray = cellValueChild.split(",");
-
-							for (Element childEle : nodeName) {
-								Elements childElements = childEle.getElementsByTag(childArray[0]);
-								Boolean matched = findPossibility(childArray, childEle);
-								if (matched == true) {
-									jArrChild.add(getJsonComponentList(childElements, row,damPath,imagesPath));
-									elements.select(cellValue).remove();
-								}
-							}
-						}
-					}
-				}
-				jArr.addAll(jArrChild);
-			}
-
-		}
-		return jArr;
+	//Common Service User
+	public ResourceResolver getResourseResolver() throws LoginException {
+		Map<String, Object> serviceUser = new HashMap<>();
+		serviceUser.put(ResourceResolverFactory.SUBSERVICE, "migrationService");	
+		ResourceResolver resolver = resolverFactory.getServiceResourceResolver(serviceUser);
+		return resolver;
+		
 	}
+
+	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath, String imagesPath) throws IOException {
+        JsonArray jArr = new JsonArray();
+        try {
+            for (Element element : elements) {
+            ResourceResolver resolver  = getResourseResolver();
+            Resource res = resolver.getResource(configPath);
+            Asset asset = res.adaptTo(Asset.class);
+            Rendition rendition = asset.getOriginal();
+            InputStream Excelstream = rendition.getStream();
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(Excelstream); // Return first sheet from the XLSX workbook
+            XSSFSheet mySheet = myWorkBook.getSheetAt(0);
+             // Get iterator to all the rows in current sheet
+             Iterator<Row> rowIterator = mySheet.iterator();
+             while (rowIterator.hasNext()) {
+                element.getElementsByTag(element.tagName());
+                log.info("--------"+element.tagName() +" "+element.nodeName());
+                Row row = rowIterator.next();
+                Cell cell = row.getCell(8);
+                Cell cellChild = row.getCell(9);
+                DataFormatter df = new DataFormatter();
+                String cellValueChild = df.formatCellValue(cellChild);
+                String cellValue = df.formatCellValue(cell);
+                JsonArray jArrChild = new JsonArray();
+                if (element.tagName().equals(cellValue)) {
+                    if (!cellValue.equals("")) {
+                        Elements nodeName = element.getElementsByTag(element.tagName());
+                        if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
+                            jArrChild = getJsonComponentList(nodeName, row, damPath,imagesPath);
+                        } else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
+                            String[] childArray = cellValueChild.split(",");
+                            for (Element childEle : nodeName) {
+                                Elements childElements = childEle.getElementsByTag(childArray[0]);
+                                Boolean matched = findPossibility(childArray, childEle);
+                                if (matched == true) {
+                                    jArrChild.add(getJsonComponentList(childElements, row, damPath,imagesPath));
+                                    elements.select(cellValue).remove();
+                                }
+                            }
+                        }
+                    }
+                }
+                jArr.addAll(jArrChild);
+            }
+        }
+            } catch(LoginException e){
+                    log.error("LoginException ",e);
+                 }
+            return jArr;
+    }
 
 	private Boolean findPossibility(String[] childArray, Element childEle) {
 		Elements childElements = childEle.getElementsByTag(childArray[0]);
@@ -410,9 +428,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			}
 			URL url = new URL(imageUrl);
 			InputStream is = url.openStream();
-			Map<String, Object> param = new HashMap<>();
-			param.put(ResourceResolverFactory.SUBSERVICE, "migrationService");
-			ResourceResolver resolver = resolverFactory.getServiceResourceResolver(param);
+			ResourceResolver resolver  = getResourseResolver();
 			AssetManager assetMgr = resolver.adaptTo(AssetManager.class);
 			newFile = imagesPath + imageName;
 			Resource res = resolver.getResource(newFile);
