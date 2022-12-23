@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.aem.migration.core.utils.ComponentsUtil;
 import com.day.cq.dam.api.AssetManager;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -283,13 +284,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @throws IOException
 	 */
 	@Override
-	public JsonArray getWPPagesList(String damPath, String configPath, String imagesPath) throws IOException {
+	public JsonArray getWPPagesList(String damPath, String configPath, String imagesPath,Map map) throws IOException {
 
-		return extractPageComponents(damPath, configPath,imagesPath);
+		return extractPageComponents(damPath, configPath,imagesPath,map);
 
 	}
 
-	public JsonArray extractPageComponents(String damPath, String configPath, String imagesPath) throws IOException {
+	public JsonArray extractPageComponents(String damPath, String configPath, String imagesPath, Map map) throws IOException {
 		WordPressPage wpPage = new WordPressPage();
 		JsonArray jArr = null;
 		if (damPath != null) {
@@ -297,6 +298,20 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			// String pageHTML = pageReader.toString();
 
 			Document html = Jsoup.connect(damPath).get();
+			String headerType = map.get("headerType").toString();
+			String footerType = map.get("footerType").toString();
+			String headerValue = map.get("headerValue").toString();
+			String footerValue = map.get("footerValue").toString();
+			if(headerType.equalsIgnoreCase("tag")){
+				html.select(headerValue).remove();
+			}else if(headerType.equalsIgnoreCase("class")){
+				html.getElementsByClass(headerValue).remove();
+			}
+			if(footerType.equalsIgnoreCase("tag")){
+				html.select(footerValue).remove();
+			}else if(footerType.equalsIgnoreCase("class")){
+				html.getElementsByClass(footerValue).remove();
+			}
 			Elements elements = html.getAllElements();
 			int counter = 0;
 			jArr = getHTMLElementsToMap(configPath, elements,damPath, imagesPath);
@@ -381,71 +396,19 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath, String imagesPath) {
 		String cellProp = row.getCell(7).getStringCellValue();
 		String cellPropFixed = row.getCell(10).getStringCellValue();
-		String[] convertedPropArray = cellProp.split(",");
-		Map<String, String> map = new HashMap<String, String>();
-		String resType = row.getCell(5).getStringCellValue();
-		String textKey="";
-		for (String s : convertedPropArray) {
-			String[] t = s.split("=");
-			int size = t.length;
-			if(size==2) {
-				map.put(t[0], t[1]);
-			}
-			else{
-				textKey=t[0];
-				map.put(t[0],"");
-			}
-		}
 		JsonArray jArr = new JsonArray();
-		for (Element elc : nodeName) {
-			JsonObject jObj = new JsonObject();
-			jObj.addProperty("sling:resourceType", resType);
-			jObj.addProperty("componentContainer", cellPropFixed);
-			for (String s : map.keySet()) {
-				String source = elc.attr(s);
-				if(s.equalsIgnoreCase("src")){
-					source = getDamImagePath(damPath+source,imagesPath);
-				}
-				if(s.equalsIgnoreCase(textKey)){
-					jObj.addProperty(textKey, elc.text());
-				}
-				jObj.addProperty(map.get(s), source);
-			}
-			jArr.add(jObj);
+		String resType = row.getCell(5).getStringCellValue();
+		if(resType.equalsIgnoreCase("migration/components/image")){
+			jArr = ComponentsUtil.createImageComponent(nodeName, row, damPath, imagesPath, resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/text")){
+			jArr = ComponentsUtil.createTextComponent(nodeName, resType,cellProp,cellPropFixed);
+		}else if(resType.equalsIgnoreCase("migration/components/title")){
+			jArr = ComponentsUtil.createTitleComponent(nodeName, row);
+		}else if(resType.equalsIgnoreCase("migration/components/button")){
+			jArr = ComponentsUtil.createButtonComponent(nodeName, row);
 		}
 		return jArr;
 
-	}
-
-	public String getDamImagePath(String imageUrl, String imagesPath){
-		String newFile="";
-		try {
-			String[] splitImageUrl = imageUrl.split("/");
-			int urlLength = splitImageUrl.length;
-			String imageName = splitImageUrl[urlLength - 1];
-			if (imageName.contains("?")) {
-				imageName = imageName.substring(0, imageName.indexOf("?"));
-			}
-			URL url = new URL(imageUrl);
-			InputStream is = url.openStream();
-			ResourceResolver resolver  = getResourseResolver();
-			AssetManager assetMgr = resolver.adaptTo(AssetManager.class);
-			newFile = imagesPath + imageName;
-			Resource res = resolver.getResource(newFile);
-			if (res == null) {
-				if (imageName.endsWith("svg")) {
-					assetMgr.createAsset(newFile, is, "image/svg+xml", true);
-				} else {
-					assetMgr.createAsset(newFile, is, "image/jpeg", true);
-				}
-			}
-		}
-		catch(LoginException e){
-			log.error("LoginException ",e);
-		}catch(IOException e){
-			log.error("IOException ",e);
-		}
-		return newFile;
 	}
 
 	/**

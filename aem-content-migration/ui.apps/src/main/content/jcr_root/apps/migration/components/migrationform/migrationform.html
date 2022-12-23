@@ -18,6 +18,22 @@
 		<label for="templatePath">Template path </label>
 		<input style="margin-left: 50px; margin-top:15px; width:50%;" type="text" name="templatePath" id="templatePath">
 		<br>
+		<p>Select the header type </p>
+		<input type="radio" name="headerType" value="class">
+		<label>Class</label><br>
+		<input type="radio" name="headerType" value="tag">
+		<label>Tag</label><br>
+		<label for="headerValue">Header Value</label><br>
+		<input type="text" id="headerValue" name="headerValue">
+		<br>
+		<p>Select the footer type </p>
+		<input type="radio" name="footerType" value="class">
+		<label>Class</label><br>
+		<input type="radio" name="footerType" value="tag">
+		<label>Tag</label><br>
+		<label for="footerValue">Footer Value</label><br>
+		<input type="text" id="footerValue" name="footerValue">
+		<br>
 	<button style="margin-left: 420px; margin-top:15px;margin-bottom:35px;" id="button_2" value="val_2" name="but2">Create Pages</button>
 	</form>
 	<p id="demo"></p>
@@ -31,6 +47,10 @@
                 var imagesPath = document.getElementById("imagesPath").value;
                 var templatePath = document.getElementById("templatePath").value;
 				var configPath= document.getElementById("config").value;
+				var headerType= document.querySelector('input[name="headerType"]:checked').value;
+                var footerType= document.querySelector('input[name="footerType"]:checked').value;
+                var headerValue= document.getElementById("headerValue").value;
+                var footerValue= document.getElementById("footerValue").value;
 				e.preventDefault();
 				$.ajax({
 					type: "GET",
@@ -41,7 +61,12 @@
 						"sourcePath": sourcePath,
 						"destPath": destPath,
 						"configPath": configPath,
-						"templatePath":templatePath
+						"templatePath":templatePath,
+						"headerType":headerType,
+						"footerType":footerType,
+						"headerValue":headerValue,
+						"footerValue":footerValue
+
 					},
 					success: function(result) {
 						document.getElementById("demo").innerHTML = result;

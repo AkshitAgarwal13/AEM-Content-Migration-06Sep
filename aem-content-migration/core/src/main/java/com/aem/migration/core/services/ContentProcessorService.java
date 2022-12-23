@@ -3,6 +3,7 @@ package com.aem.migration.core.services;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import com.aem.migration.core.aem.dto.AEMPage;
 import com.aem.migration.core.wordpress.dto.WordPressPage;
@@ -28,7 +29,7 @@ public interface ContentProcessorService {
 	 * @return the WP page object
 	 * @throws IOException 
 	 */
-	public JsonArray getWPPagesList(String damPath,String configPath, String imagesPath) throws IOException;
+	public JsonArray getWPPagesList(String damPath,String configPath, String imagesPath, Map map) throws IOException;
 	
 	/**
 	 * Extract WP page components.
