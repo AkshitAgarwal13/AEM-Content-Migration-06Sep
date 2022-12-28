@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -323,61 +325,61 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	//Common Service User
 	public ResourceResolver getResourseResolver() throws LoginException {
 		Map<String, Object> serviceUser = new HashMap<>();
-		serviceUser.put(ResourceResolverFactory.SUBSERVICE, "migrationService");	
+		serviceUser.put(ResourceResolverFactory.SUBSERVICE, "migrationService");
 		ResourceResolver resolver = resolverFactory.getServiceResourceResolver(serviceUser);
 		return resolver;
-		
+
 	}
 
 	public JsonArray getHTMLElementsToMap(String configPath, Elements elements, String damPath, String imagesPath) throws IOException {
-        JsonArray jArr = new JsonArray();
-        try {
-            for (Element element : elements) {
-            ResourceResolver resolver  = getResourseResolver();
-            Resource res = resolver.getResource(configPath);
-            Asset asset = res.adaptTo(Asset.class);
-            Rendition rendition = asset.getOriginal();
-            InputStream Excelstream = rendition.getStream();
-            XSSFWorkbook myWorkBook = new XSSFWorkbook(Excelstream); // Return first sheet from the XLSX workbook
-            XSSFSheet mySheet = myWorkBook.getSheetAt(0);
-             // Get iterator to all the rows in current sheet
-             Iterator<Row> rowIterator = mySheet.iterator();
-             while (rowIterator.hasNext()) {
-                element.getElementsByTag(element.tagName());
-                log.info("--------"+element.tagName() +" "+element.nodeName());
-                Row row = rowIterator.next();
-                Cell cell = row.getCell(8);
-                Cell cellChild = row.getCell(9);
-                DataFormatter df = new DataFormatter();
-                String cellValueChild = df.formatCellValue(cellChild);
-                String cellValue = df.formatCellValue(cell);
-                JsonArray jArrChild = new JsonArray();
-                if (element.tagName().equals(cellValue)) {
-                    if (!cellValue.equals("")) {
-                        Elements nodeName = element.getElementsByTag(element.tagName());
-                        if (!nodeName.isEmpty() && cellValueChild.equalsIgnoreCase("")) {
-                            jArrChild = getJsonComponentList(nodeName, row, damPath,imagesPath);
-                        } else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
-                            String[] childArray = cellValueChild.split(",");
-                            for (Element childEle : nodeName) {
-                                Elements childElements = childEle.getElementsByTag(childArray[0]);
-                                Boolean matched = findPossibility(childArray, childEle);
-                                if (matched == true) {
-                                    jArrChild.add(getJsonComponentList(childElements, row, damPath,imagesPath));
-                                    elements.select(cellValue).remove();
-                                }
-                            }
-                        }
-                    }
-                }
-                jArr.addAll(jArrChild);
-            }
-        }
-            } catch(LoginException e){
-                    log.error("LoginException ",e);
-                 }
-            return jArr;
-    }
+		JsonArray jArr = new JsonArray();
+		try {
+			for (Element element : elements) {
+				ResourceResolver resolver  = getResourseResolver();
+				Resource res = resolver.getResource(configPath);
+				Asset asset = res.adaptTo(Asset.class);
+				Rendition rendition = asset.getOriginal();
+				InputStream Excelstream = rendition.getStream();
+				XSSFWorkbook myWorkBook = new XSSFWorkbook(Excelstream); // Return first sheet from the XLSX workbook
+				XSSFSheet mySheet = myWorkBook.getSheetAt(0);
+				// Get iterator to all the rows in current sheet
+				Iterator<Row> rowIterator = mySheet.iterator();
+				String htmlString = element.toString();
+				int elementSize = htmlString.length();
+				if(elementSize <= 5000) {
+					while (rowIterator.hasNext()) {
+						JsonArray jArrChild = new JsonArray();
+						Row row = rowIterator.next();
+						Cell cell = row.getCell(8);
+						Cell cellChild = row.getCell(9);
+						DataFormatter df = new DataFormatter();
+						String cellValueChild = df.formatCellValue(cellChild);
+						String cellValue = df.formatCellValue(cell);
+						if (htmlString.matches(cellValue)) {
+							Elements nodeName = element.getElementsByTag(element.tagName());
+							if (!nodeName.isEmpty()) {
+								jArrChild = getJsonComponentList(nodeName, row, damPath,imagesPath);
+							} else if (!nodeName.isEmpty() && !cellValueChild.equalsIgnoreCase("")) {
+								String[] childArray = cellValueChild.split(",");
+								for (Element childEle : nodeName) {
+									Elements childElements = childEle.getElementsByTag(childArray[0]);
+									Boolean matched = findPossibility(childArray, childEle);
+									if (matched == true) {
+										jArrChild.add(getJsonComponentList(childElements, row, damPath,imagesPath));
+										elements.select(cellValue).remove();
+									}
+								}
+							}
+						}
+						jArr.addAll(jArrChild);
+					}
+				}
+			}
+		} catch(LoginException e){
+			log.error("LoginException ",e);
+		}
+		return jArr;
+	}
 
 	private Boolean findPossibility(String[] childArray, Element childEle) {
 		Elements childElements = childEle.getElementsByTag(childArray[0]);
@@ -395,7 +397,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 
 	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath, String imagesPath) {
 		String cellProp = row.getCell(7).getStringCellValue();
-		String cellPropFixed = row.getCell(10).getStringCellValue();
+		String cellPropFixed = row.getCell(9).getStringCellValue();
 		JsonArray jArr = new JsonArray();
 		String resType = row.getCell(5).getStringCellValue();
 		if(resType.equalsIgnoreCase("migration/components/image")){

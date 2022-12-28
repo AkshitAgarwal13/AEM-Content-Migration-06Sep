@@ -26,7 +26,7 @@ public class ComponentsUtil {
     public static JsonArray createImageComponent(Elements nodeName, Row row, String damPath, String imagesPath,ResourceResolverFactory resolverFactory){
         String resType = row.getCell(5).getStringCellValue();
         String cellProp = row.getCell(7).getStringCellValue();
-        String cellPropFixed = row.getCell(10).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
         String[] convertedPropArray = cellProp.split(",");
         Map<String, String> map = new HashMap<String, String>();
         for (String s : convertedPropArray) {
@@ -86,7 +86,7 @@ public class ComponentsUtil {
     public static JsonArray createButtonComponent(Elements nodeName, Row row){
         String resType = row.getCell(5).getStringCellValue();
         String cellProp = row.getCell(7).getStringCellValue();
-        String cellPropFixed = row.getCell(10).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
         String[] convertedPropArray = cellProp.split(",");
         Map<String, String> map = new HashMap<String, String>();
         String textKey="";
@@ -114,7 +114,7 @@ public class ComponentsUtil {
     public static JsonArray createTitleComponent(Elements nodeName, Row row){
         String resType = row.getCell(5).getStringCellValue();
         String cellProp = row.getCell(7).getStringCellValue();
-        String cellPropFixed = row.getCell(10).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
         String[] convertedPropArray = cellProp.split(",");
         Map<String, String> map = new HashMap<String, String>();
         String type = convertedPropArray[0];
