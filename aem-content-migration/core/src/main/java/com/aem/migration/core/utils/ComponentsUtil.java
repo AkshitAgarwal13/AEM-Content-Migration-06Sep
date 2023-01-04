@@ -31,7 +31,7 @@ public class ComponentsUtil {
         Map<String, String> map = new HashMap<String, String>();
         for (String s : convertedPropArray) {
             String[] t = s.split("=");
-                map.put(t[0], t[1]);
+            map.put(t[0], t[1]);
         }
         JsonArray jArr = new JsonArray();
         for (Element elc : nodeName) {
@@ -41,12 +41,7 @@ public class ComponentsUtil {
             for (String s : map.keySet()) {
                 String source = elc.attr(s);
                 if(s.equalsIgnoreCase("src")){
-                    if(source.startsWith("//")){
-                        source="https:"+source;
-                    }else if(source.startsWith("/")){
-                        source=damPath+source;
-                    }
-                    source = getDamImagePath(source,imagesPath,resolverFactory);
+                    source = getDamImagePath(source,damPath, imagesPath,resolverFactory);
                 }
                 jObj.addProperty(map.get(s), source);
             }
@@ -57,28 +52,14 @@ public class ComponentsUtil {
 
 
 
-    public static JsonArray createTextComponent(Elements nodeName, String resType, String cellProp, String cellPropFixed){
-
-        String[] convertedPropArray = cellProp.split(",");
-        Map<String, String> map = new HashMap<String, String>();
-        String textKey="";
-        for (String s : convertedPropArray) {
-            String[] t = s.split("=");
-                textKey=t[0];
-                map.put(t[0],"");
-        }
+    public static JsonArray createTextComponent(Elements nodeName, String resType,String cellProp, String cellPropFixed){
         JsonArray jArr = new JsonArray();
         for (Element elc : nodeName) {
             JsonObject jObj = new JsonObject();
             jObj.addProperty("sling:resourceType", resType);
             jObj.addProperty("componentContainer", cellPropFixed);
-            for (String s : map.keySet()) {
-                String source = elc.attr(s);
-                if(s.equalsIgnoreCase(textKey)){
-                    jObj.addProperty(textKey, elc.text());
-                }
-                jObj.addProperty(map.get(s), source);
-            }
+            jObj.addProperty(cellProp,elc.toString());
+            jObj.addProperty("textIsRich","true");
             jArr.add(jObj);
         }
         return  jArr;
@@ -131,9 +112,74 @@ public class ComponentsUtil {
         }
         return  jArr;
     }
+    public static JsonArray createBannerComponent(Elements nodeName, Row row, String damPath, String imagesPath, ResourceResolverFactory resolverFactory){
+        String resType = row.getCell(5).getStringCellValue();
+        String cellProp = row.getCell(7).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
+        String[] convertedPropArray = cellProp.split(",");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String s : convertedPropArray) {
+            String[] t = s.split("=");
+            map.put(t[0], t[1]);
+        }
+        JsonArray jArr = new JsonArray();
+        for (Element elc : nodeName) {
+            JsonObject jObj = new JsonObject();
+            jObj.addProperty("sling:resourceType", resType);
+            jObj.addProperty("componentContainer", cellPropFixed);
+            for (String s : map.keySet()) {
+                if(!elc.getElementsByTag(s).text().isEmpty()) {
+                    String source = elc.getElementsByTag(s).text();
+                    jObj.addProperty(map.get(s), source);
+                }else if(!elc.getElementsByAttribute(s).attr(s).isEmpty()){
+                    String source = elc.getElementsByAttribute(s).attr(s);
+                    if(map.get(s).equals("backgroundImage")) {
+                          jObj.addProperty(map.get(s), getDamImagePath(source,damPath, imagesPath, resolverFactory ));
+                    }else{
+                        jObj.addProperty(map.get(s), source);
+                    }
+                }
+            }
+            jArr.add(jObj);
+        }
+        return  jArr;
+    }
 
+    public  static JsonArray createTextImageComponent(Elements nodeName, Row row, ResourceResolverFactory resolverFactory){
+        String resType = row.getCell(5).getStringCellValue();
+        String cellProp = row.getCell(7).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
+        String[] convertedPropArray = cellProp.split(",");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String s : convertedPropArray) {
+            String[] t = s.split("=");
+            map.put(t[0], t[1]);
+        }
+        JsonArray jArr = new JsonArray();
+        for (Element elc : nodeName) {
+            JsonObject jObj = new JsonObject();
+            jObj.addProperty("sling:resourceType", resType);
+            jObj.addProperty("componentContainer", cellPropFixed);
+            for (String s : map.keySet()) {
+                if(!elc.getElementsByTag(s).text().isEmpty()) {
+                    String source = elc.getElementsByTag(s).text();
+                    jObj.addProperty(map.get(s), source);
+                }else if(!elc.getElementsByAttribute(s).attr(s).isEmpty()){
+                    if(s.equalsIgnoreCase("src")){
+                        jObj.addProperty(map.get(s), getDamImagePath(elc.getElementsByAttribute(s).attr(s),"","/content/dam/ibm/new/",resolverFactory));
+                    }
+                    else{
+                        String source = elc.getElementsByAttribute(s).attr(s);
+                        jObj.addProperty(map.get(s), source);
+                    }
+                }
+            }
+            jArr.add(jObj);
+        }
+        return jArr;
 
-    public static String getDamImagePath(String imageUrl, String imagesPath,ResourceResolverFactory resolverFactory){
+    }
+    public static String getDamImagePath(String imageUrl, String damPath, String imagesPath,ResourceResolverFactory resolverFactory){
         String newFile="";
         try {
             String[] splitImageUrl = imageUrl.split("/");
@@ -142,13 +188,20 @@ public class ComponentsUtil {
             if (imageName.contains("?")) {
                 imageName = imageName.substring(0, imageName.indexOf("?"));
             }
+            if(imageUrl.startsWith("//")){
+                imageUrl="https:"+imageUrl;
+            } else if(imageUrl.startsWith("/")){
+                imageUrl=damPath+imageUrl;
+            }else if(imageUrl.startsWith("https")){
+                imageUrl=imageUrl;
+            }
             URL url = new URL(imageUrl);
             InputStream is = url.openStream();
             Map<String, Object> param = new HashMap<>();
             param.put(ResourceResolverFactory.SUBSERVICE, "migrationService");
             ResourceResolver resolver = resolverFactory.getServiceResourceResolver(param);
             AssetManager assetMgr = resolver.adaptTo(AssetManager.class);
-            newFile = imagesPath + imageName;
+            newFile = imagesPath + imageName.replaceAll("[^a-zA-Z0-9.]","-");
             Resource res = resolver.getResource(newFile);
             if (res == null) {
                 if (imageName.endsWith("svg")) {

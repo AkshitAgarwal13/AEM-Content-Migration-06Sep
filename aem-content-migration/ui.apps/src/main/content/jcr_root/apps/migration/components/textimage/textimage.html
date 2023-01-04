@@ -1,0 +1,40 @@
+<sly data-sly-use.textImageObject="com.aem.migration.core.models.TextImageModel">
+    <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" />
+    <sly data-sly-call="${clientlib.css @ categories='migration.textImage'}" />
+    <div class="ibm-card-container">
+        <div class="ibm-card-header">
+            <h3 class=""
+                    style="height: auto;">
+                <span> ${textImageObject.title}</span>
+            </h3>
+        </div>
+        <div class="ibm-card-image">
+            <figure class="">
+                <a target="_self" href="${textImageObject.buttonLink}" data-di-id="38f68bd2">
+                    <img loading="lazy"
+                         src="${textImageObject.image}"
+                         alt="IBM employee on campus" class="">
+                </a>
+            </figure>
+        </div>
+        <div class="ibm-card-description-text">
+            <p>${textImageObject.description}</p>
+        </div>
+        <div
+                class="ibm-careers-link">
+            <p class="">
+                <a target="_self" href="${textImageObject.buttonLink}"
+                   class=""
+                   data-di-id="">
+                    <span>${textImageObject.buttonLabel}</span>
+                    <svg focusable="false" class="ibm-duo-u--link-icon--arrow-right" preserveAspectRatio="xMidYMid meet"
+                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" aria-label="View this link"
+                         width="20" height="20" viewBox="0 0 20 20" slot="icon" data-di-res-id="258eeeab-9541464f"
+                         data-di-rand="1672733981023">
+                        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+                    </svg>
+                </a>
+            </p>
+        </div>
+    </div>
+</sly>

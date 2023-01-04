@@ -1,0 +1,26 @@
+.ibm-card-container{
+    width: 310px;
+    padding: 15px;
+    display: inline-block;
+}
+.ibm-card-image img{
+    max-width: 100%;
+    max-height: 100%;
+}
+.ibm-card-header{
+    margin-bottom: 25px;
+}
+.ibm-card-header span{
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 1.28572;
+    letter-spacing: 0;
+}
+
+.ibm-careers-link a{
+        color: #0f62fe;
+}
+.ibm-careers-link svg{
+    fill: #0f62fe;
+    margin-left: 10px;
+}

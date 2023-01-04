@@ -1,0 +1,90 @@
+.five-trends-large__image{
+    width: 100%;
+    height: 600px;
+    top: 0;
+    left: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.left-container-div{
+    height: 550px;
+    margin-left: 30px;
+}
+.trends-title-div{
+    margin-top: 15px;
+}
+.trends-title-div span {
+    font-size: 3.25rem;
+    font-weight: 300;
+    line-height: 1.22;
+    color: #262626;
+}
+
+.bottom-subtitle-div{
+    margin-top:400px;
+    bottom: 0;
+}
+.subtitle-text-container-div{
+    margin-bottom: 25px;
+}
+.subtitle-text{
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0;
+}
+.ibm-duo-button-item a{
+    color: #fff;
+    text-decoration: none;
+    width: 200px;
+    padding-left: 20px;
+}
+.ibm-duo-button-item svg {
+    float: right;
+}
+
+.ibm-duo-button-item{
+       width: 220px;
+        min-width: 13.75rem;
+        text-align: left;
+        display: inline-flex;
+}
+
+.ibm-duo-button-item:active{
+    color: #fff;
+        background-color: #002d9c;
+        border-color: #002d9c;
+        outline-color: #002d9c;
+}
+.ibm-duo-button-item:hover{
+    background-color: #0354e9;
+        border-color: #0354e9;
+        outline-color: #0354e9;
+}
+.ibm-duo-button-item{
+    position: relative;
+        outline: 0;
+        cursor: pointer;
+        min-width: auto;
+        min-height: 48px;
+        min-height: 3rem;
+        position: relative;
+        -webkit-flex-shrink: 0;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: justify;
+        -webkit-justify-content: space-between;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        text-align: left;
+        vertical-align: top;
+        border-radius: 0;
+        color: #fff;
+        background-color: #0062ff;
+        border-color: #0062ff;
+        outline-color: #0062ff;
+}

@@ -355,6 +355,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 						DataFormatter df = new DataFormatter();
 						String cellValueChild = df.formatCellValue(cellChild);
 						String cellValue = df.formatCellValue(cell);
+
 						if (htmlString.matches(cellValue)) {
 							Elements nodeName = element.getElementsByTag(element.tagName());
 							if (!nodeName.isEmpty()) {
@@ -408,6 +409,10 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			jArr = ComponentsUtil.createTitleComponent(nodeName, row);
 		}else if(resType.equalsIgnoreCase("migration/components/button")){
 			jArr = ComponentsUtil.createButtonComponent(nodeName, row);
+		}else if(resType.equalsIgnoreCase("migration/components/banner")){
+			jArr = ComponentsUtil.createBannerComponent(nodeName, row,damPath, imagesPath, resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/textimage")){
+			jArr = ComponentsUtil.createTextImageComponent(nodeName, row, resolverFactory);
 		}
 		return jArr;
 

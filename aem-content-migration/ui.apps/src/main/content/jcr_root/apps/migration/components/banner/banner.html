@@ -1,0 +1,35 @@
+<sly data-sly-use.bannerObject="com.aem.migration.core.models.BannerModel">
+    <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" />
+    <sly data-sly-call="${clientlib.css @ categories='migration.banner'}" />
+    <section role="article" about="" class="" >
+        <div class="five-trends-large__image" style="background-image: url('${bannerObject.backgroundImage @ context='styleString'}');">
+            <div class="row">
+                <div class="col-sm-4 left-container-div">
+                    <div class="trends-title-div">
+                        <span>${bannerObject.title}</span>
+                    </div>
+
+                    <div class="bottom-subtitle-div">
+                        <div class="subtitle-text-container-div">
+                            <span class="subtitle-text">${bannerObject.description}</span>
+                        </div>
+
+                        <div class="ibm-duo-button-item">
+                            <a target="_self"
+                               href="${bannerObject.buttonLink}"
+                               class=""
+                               data-di-id="">
+                                ${bannerObject.buttonLabel}
+                                <svg focusable="false" class="ibm-duo-u--link-icon--arrow-right" preserveAspectRatio="xMidYMid meet"
+                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" aria-label="View this link" width="20"
+                                     height="20" viewBox="0 0 20 20" slot="icon" data-di-res-id="20de831b-1241a579" data-di-rand="1672208274384">
+                                    <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</sly>
