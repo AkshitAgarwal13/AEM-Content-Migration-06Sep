@@ -156,7 +156,7 @@ public class ComponentsUtil {
             map.put(t[0], t[1]);
         }
         JsonArray jArr = new JsonArray();
-        for (Element elc : nodeName) {
+       Element elc = nodeName.first();
             JsonObject jObj = new JsonObject();
             jObj.addProperty("sling:resourceType", resType);
             jObj.addProperty("componentContainer", cellPropFixed);
@@ -175,7 +175,7 @@ public class ComponentsUtil {
                 }
             }
             jArr.add(jObj);
-        }
+
         return jArr;
 
     }

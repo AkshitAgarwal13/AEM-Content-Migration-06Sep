@@ -346,7 +346,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 				Iterator<Row> rowIterator = mySheet.iterator();
 				String htmlString = element.toString();
 				int elementSize = htmlString.length();
-				if(elementSize <= 5000) {
 					while (rowIterator.hasNext()) {
 						JsonArray jArrChild = new JsonArray();
 						Row row = rowIterator.next();
@@ -355,7 +354,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 						DataFormatter df = new DataFormatter();
 						String cellValueChild = df.formatCellValue(cellChild);
 						String cellValue = df.formatCellValue(cell);
-
 						if (htmlString.matches(cellValue)) {
 							Elements nodeName = element.getElementsByTag(element.tagName());
 							if (!nodeName.isEmpty()) {
@@ -374,7 +372,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 						}
 						jArr.addAll(jArrChild);
 					}
-				}
 			}
 		} catch(LoginException e){
 			log.error("LoginException ",e);
@@ -534,7 +531,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			sb.append("&jcr:content/root/sling:resourceType=migration/components/container");
 			sb.append("&jcr:content/root/container/layout=responsiveGrid");
 			sb.append("&jcr:content/root/container/sling:resourceType=migration/components/container");
-			sb.append("&jcr:content/root/container/container/layout=responsiveGrid");
+			sb.append("&jcr:content/root/container/container/layout=simple");
 			sb.append("&jcr:content/root/container/container/sling:resourceType=migration/components/container");
 			String componentContainerPath = jOb.get("componentContainer").getAsString();
 			String componentContainerPathVal = componentContainerPath + counterComp;
