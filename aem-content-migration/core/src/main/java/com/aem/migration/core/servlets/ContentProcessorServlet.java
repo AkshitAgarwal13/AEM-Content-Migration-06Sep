@@ -2,6 +2,7 @@ package com.aem.migration.core.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.*;
 
 import javax.servlet.Servlet;
@@ -77,7 +78,8 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 
 			response.setContentType("text/html;charset=UTF-8");
 			String pageURL = null;
-			String aemRootNodePath = request.getParameter("destPath");
+			URL url = new URL(request.getRequestURL().toString());
+			String aemRootNodePath = url.getProtocol() + "://" + url.getAuthority() + request.getParameter("destPath");
 			int counterComp=0;
 			Iterator<JsonElement> outputSchemaIterator = jsonArray.iterator();
 			 while(outputSchemaIterator.hasNext()) {

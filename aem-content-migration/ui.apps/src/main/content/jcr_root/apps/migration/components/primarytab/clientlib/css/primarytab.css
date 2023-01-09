@@ -1,0 +1,60 @@
+.ibm-stickytabs-container{
+    background: #ececec;
+    height: 100px;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+}
+.ibm-stickytabs-grid-container{
+    height: 70px;
+    position: relative;
+    margin-left: 40px;
+    margin-right: 30px;
+    width: 100%;
+}
+.ibm-stickytabs-link-list{
+    column-count: inherit !important;
+    padding: 0;
+    white-space: nowrap;
+    padding: 0 0 15px;
+    margin: 0;
+    list-style: none;
+    font-size: 1rem;
+    line-height: 1.625rem;
+}
+.ibm-stickytabs-link-list li{
+    display: inline-block;
+    float: none;
+    padding-bottom: 0 !important;
+    padding-left: 0;
+    min-width: 160px;
+}
+.ibm-stickytabs-link-list-a{
+    width: 130px;
+    height: 40px;
+    padding: 16px;
+    background-color: transparent;
+    -webkit-transition: background-color .3s cubic-bezier(.4, .14, .3, 1);
+    transition: background-color .3s cubic-bezier(.4, .14, .3, 1);
+    line-height: 1.125rem;
+    text-decoration: none;
+    font-size: .875rem;
+    letter-spacing: .01rem;
+    margin-bottom: 1rem;
+    max-width: 30rem;
+    color: #262626;
+}
+.ibm-stickytabs-link-list-a span{
+    display: block;
+}
+.ibm-stickytabs-link-list-a:hover {
+    text-decoration: none;
+    color: #262626;
+}
+.ibm-stickytabs-link-list li:focus {
+    background-color: #e6e8ec;
+    color: #262626;
+}
+.ibm-stickytabs-link-list li:hover {
+    background-color: #e6e8ec;
+    color: #262626;
+}

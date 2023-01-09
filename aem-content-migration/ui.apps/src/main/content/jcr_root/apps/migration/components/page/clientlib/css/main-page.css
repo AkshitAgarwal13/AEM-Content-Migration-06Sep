@@ -1,0 +1,13 @@
+body {
+  background-color: #fff !important;
+}
+
+.container {
+    max-width : 100% !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+
+main.container {
+    padding: 0  !important;
+}

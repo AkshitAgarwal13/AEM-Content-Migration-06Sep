@@ -1,0 +1,50 @@
+<sly data-sly-use.model="com.aem.migration.core.models.ConsultingTabsModel">
+  <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" />
+  <sly data-sly-call="${clientlib.all @ categories='migration.consulting-tabs'}" />
+  <sly data-sly-test.mainHeading="${model.heading != '' ? model.heading : ''}" />
+  <div class="ibm-tab-container row">
+    <div class="panel-heading-container col-sm-3">
+      <div class="panel-heading">
+        <span>${mainHeading}</span>
+      </div>
+    </div>
+    <div class="tab-panel-div col-sm-9">
+      <ul class="nav nav-tabs" role="tablist" data-sly-list.item="${model.consultingTabs}">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#${item.id}" role="tab">${item.label}</a>
+        </li>
+      </ul>
+      <!-- Tab panes -->
+      <div class="tab-content" data-sly-list.item="${model.consultingTabs}">
+        <div class="tab-pane" id="${item.id}" role="tabpanel">
+          <div class="row tabpanel-container">
+            <div class="col-sm-8 tabpanel-container-img">
+              <img loading="lazy" src="${item.fileReference}" alt="${item.altText}" class="">
+            </div>
+            <div class="col-sm-4">
+              <div>
+                <div class="">
+                  <div class="">
+                    <h3 class="tab-header" data-wow-delay=".3s"> ${item.header} </h3>
+                  </div>
+                  <div data-sly-test="${item.description}" class="tab-description" data-wow-delay=".5s">
+                    <p>${item.description}</p>
+                  </div>
+                  <div data-sly-test="${item.linkText}" class="tab-linktext" data-wow-delay=".7s">
+                    <p class="">
+                      <a target="_self" href="${item.link}" class="" data-di-id="di-id-bb9a57b6-192bd791">
+                        <span>${item.linkText}</span>
+                        <svg focusable="false" class="ibm-duo-u--link-icon--arrow-right" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" aria-label="View this link" width="20" height="20" viewBox="0 0 20 20" slot="icon" data-di-rand="1672815836287">
+                          <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+                        </svg>
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</sly>

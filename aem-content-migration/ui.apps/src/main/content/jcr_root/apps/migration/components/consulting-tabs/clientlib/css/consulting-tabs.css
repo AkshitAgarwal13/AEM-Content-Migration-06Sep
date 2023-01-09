@@ -1,0 +1,51 @@
+.tab-header {
+    margin-top: 28px;
+    margin-bottom: 24px;
+}
+
+.tab-description {
+    margin-top: 16px;
+    margin-bottom: 24px;
+    color: #525252;
+}
+
+.consulting-tabs {
+    padding-bottom: 2.5rem;
+    padding-top: 32px!important;
+}
+.ibm-tab-container{
+    margin: 16px;
+    font-family: 'IBM Plex Sans',ibm-plex-sans,'Helvetica Neue',Arial,sans-serif;
+    padding-bottom: 2.5rem;
+    padding-top: 32px;
+}
+.nav-tabs{
+ border: none;
+}
+
+.nav-item {
+    margin-right: 2.6rem;
+    padding-bottom: 4rem;
+}
+
+.nav-tabs .nav-link{
+    border: none;
+    color: #3e3e3e;
+    padding: 0.5rem 0 0.625rem;
+    font-size: .875rem;
+}
+.panel-heading span{
+    font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.375;
+        letter-spacing: 0;
+}
+.nav-link:active{
+        outline-width: 2px;
+            outline-width: 0.125rem;
+            outline-offset: -1px;
+            outline-color: #0f62fe;
+}
+.tabpanel-container-img img{
+    width: 100%;
+}

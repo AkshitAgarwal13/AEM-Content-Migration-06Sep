@@ -393,7 +393,7 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 		return false;
 	}
 
-	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath, String imagesPath) {
+	public JsonArray getJsonComponentList(Elements nodeName, Row row, String damPath, String imagesPath) throws MalformedURLException {
 		String cellProp = row.getCell(7).getStringCellValue();
 		String cellPropFixed = row.getCell(9).getStringCellValue();
 		JsonArray jArr = new JsonArray();
@@ -410,6 +410,12 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			jArr = ComponentsUtil.createBannerComponent(nodeName, row,damPath, imagesPath, resolverFactory);
 		}else if(resType.equalsIgnoreCase("migration/components/textimage")){
 			jArr = ComponentsUtil.createTextImageComponent(nodeName, row, resolverFactory);
+		} else if(resType.equalsIgnoreCase("migration/components/consulting-tabs")) {
+			jArr = ComponentsUtil.createConsultingTabsComponent(nodeName, row, damPath, imagesPath, resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/section")) {
+			jArr = ComponentsUtil.createSectionComponent(nodeName, row, resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/primarytab")) {
+			jArr = ComponentsUtil.createPrimaryTabComponent(nodeName, row, resolverFactory);
 		}
 		return jArr;
 

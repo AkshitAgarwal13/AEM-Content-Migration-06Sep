@@ -15,9 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
 
 public class ComponentsUtil {
 
@@ -64,6 +67,72 @@ public class ComponentsUtil {
         }
         return  jArr;
     }
+    
+    public static JsonArray createConsultingTabsComponent(Elements nodeName, Row row, String damPath, String imagesPath, ResourceResolverFactory resolverFactory) throws MalformedURLException{
+    	
+		String cellProp = row.getCell(7).getStringCellValue();
+		String cellPropFixed = row.getCell(9).getStringCellValue();
+		String resType = row.getCell(5).getStringCellValue();
+        String childComp = row.getCell(12).getStringCellValue();
+		
+        String[] convertedPropArray = cellProp.split(",");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String s : convertedPropArray) {
+            String[] t = s.split("=");
+                map.put(t[0],t[1]);
+        }
+
+        JsonArray jArr = new JsonArray();
+        
+        for (Element elc : nodeName) {
+            JsonObject jObj = new JsonObject();
+            
+            jObj.addProperty("sling:resourceType", resType);
+            jObj.addProperty("componentContainer", cellPropFixed);
+            
+            Map<String,String> properties = new HashMap<>();
+            Map<String,String> multifieldProperties = new HashMap<>();
+            int len = 0;
+            for (Entry<String, String> s : map.entrySet()) {
+            	Boolean multifieldPropertyCheck = s.getValue().toString().contains("/./");
+            	if(multifieldPropertyCheck) {
+            		multifieldProperties.put(s.getKey(), s.getValue());
+            		len = len < elc.getElementsByClass(s.getKey().toString()).size() ? elc.getElementsByClass(s.getKey().toString()).size() : len;
+            	} else {
+            		properties.put(s.getKey(), s.getValue());
+            	}
+            }
+            
+            for (String s : properties.keySet()) {
+                jObj.addProperty(properties.get(s), elc.getElementsByClass(s).text());
+            }
+ 
+			for(int i = 0 ; i < len ; i++) {
+                for (Entry<String, String> s : multifieldProperties.entrySet()) {
+               	    if(elc.getElementsByClass(s.getKey()).size() > i) {
+               			URL url = new URL(damPath);
+               			String host  = "https://"+url.getHost();
+                   	    Element ee = elc.getElementsByClass(s.getKey()).get(i);
+                       	Boolean check = elc.getElementsByClass(s.getKey()).get(i).select("img").hasAttr("src");
+                    	if(check) {
+                    		String src = ee.select("img[src]").attr("src");                       		
+                    		src = getDamImagePath(src,damPath, imagesPath, resolverFactory);
+                    		jObj.addProperty("."+ childComp + i + s.getValue(), src);  
+                    	} else if(ee.select("a").hasAttr("href") && s.getValue().contains("#")) {
+                    		String hrefValue = ee.attr("href").contains(host) ? ee.attr("href") : host + ee.attr("href");
+                    		jObj.addProperty("."+ childComp + i + s.getValue().split("#")[1], ee.attr("href").contains("#") ? ee.attr("href").split("#")[1] : hrefValue);
+                    		jObj.addProperty("."+ childComp + i + s.getValue().split("#")[0], ee.text());
+                    	} else {
+                    		jObj.addProperty("."+ childComp + i + s.getValue(), ee.text());
+                    	}
+               	    }
+                }
+            }
+			jArr.add(jObj);
+        }
+        return  jArr;
+    }
+    
     public static JsonArray createButtonComponent(Elements nodeName, Row row){
         String resType = row.getCell(5).getStringCellValue();
         String cellProp = row.getCell(7).getStringCellValue();
@@ -178,6 +247,86 @@ public class ComponentsUtil {
 
         return jArr;
 
+    }
+    public static JsonArray createSectionComponent(Elements nodeName, Row row,ResourceResolverFactory resolverFactory) {
+        String cellProp = row.getCell(7).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
+        String resType = row.getCell(5).getStringCellValue();
+
+        String[] convertedPropArray = cellProp.split(",");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String s : convertedPropArray) {
+            String[] t = s.split("=");
+            map.put(t[0], t[1]);
+        }
+
+        JsonArray jArr = new JsonArray();
+
+        for (Element elc : nodeName) {
+            JsonObject jObj = new JsonObject();
+            jObj.addProperty("sling:resourceType", resType);
+            jObj.addProperty("componentContainer", cellPropFixed);
+            for (String s : map.keySet()) {
+                if (!elc.getElementsByTag(s).text().isEmpty()) {
+                    String source = elc.getElementsByTag(s).text();
+                    jObj.addProperty(map.get(s), source);
+                } else if (!elc.getElementsByAttribute(s).attr(s).isEmpty()) {
+                    String source = elc.getElementsByAttribute(s).attr(s);
+                    jObj.addProperty(map.get(s), source);
+                }
+
+            }
+            jArr.add(jObj);
+        }
+        return jArr;
+    }
+    public static JsonArray createPrimaryTabComponent(Elements nodeName, Row row, ResourceResolverFactory resolverFactory) {
+
+        String cellProp = row.getCell(7).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
+        String resType = row.getCell(5).getStringCellValue();
+        String childComp = row.getCell(12).getStringCellValue();
+
+        String[] convertedPropArray = cellProp.split(",");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String s : convertedPropArray) {
+            String[] t = s.split("=");
+            map.put(t[0], t[1]);
+        }
+
+        JsonArray jArr = new JsonArray();
+        JsonObject jObj = new JsonObject();
+        jObj.addProperty("sling:resourceType", resType);
+        jObj.addProperty("componentContainer", cellPropFixed);
+
+        Map<String, String> multifieldProperties = new HashMap<>();
+        Element ultag = nodeName.select("ul").first();
+        Elements ulChildren = ultag.children();
+        for (Entry<String, String> s : map.entrySet()) {
+            Boolean check = s.getValue().toString().contains("/./");
+            if (check) {
+                multifieldProperties.put(s.getKey(), s.getValue());
+            }
+        }
+
+        for (int i = 0; i < ulChildren.size(); i++) {
+            for (Entry<String, String> s : multifieldProperties.entrySet()) {
+                Element ul = nodeName.select("ul").first();
+                Element li = ul.select("li").get(i);
+                String aTag = li.select("a").text();
+                String content = aTag.replaceAll("\\d", "");
+                String slNo = li.select("a").select("span").text();
+                String key = s.getKey();
+                if(key.equals("tagHeading")) {
+                    jObj.addProperty("." + childComp + i + s.getValue(), content);
+                }
+                else if(key.equals("tagSlNo")) {
+                    jObj.addProperty("." + childComp + i + s.getValue(), slNo);
+                }
+            }
+        }
+        jArr.add(jObj);
+        return jArr;
     }
     public static String getDamImagePath(String imageUrl, String damPath, String imagesPath,ResourceResolverFactory resolverFactory){
         String newFile="";
