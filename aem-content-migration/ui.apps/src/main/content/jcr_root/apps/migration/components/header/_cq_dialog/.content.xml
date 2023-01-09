@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:granite="http://www.adobe.com/jcr/granite/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Header Properties"
+    sling:resourceType="cq/gui/components/authoring/dialog">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <column
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <firstMF
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/foundation/container">
+                        <items jcr:primaryType="nt:unstructured">
+                            <label
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/foundation/form/textfield"
+                                fieldLabel="Logo"
+                                name="./logo"
+                                required="{Boolean}false"/>
+                            <url
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/foundation/form/pathbrowser"
+                                fieldLabel="Logo URL"
+                                name="./logourl"
+                                required="{Boolean}false"
+                                rootPath="/content"/>
+                            <multifield
+                                granite:class="multifield-class"
+                                granite:data="multifielddata"
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                class="full-width"
+                                composite="{Boolean}true"
+                                fieldLabel="Header TItle"
+                                validation="multi-validate">
+                                <field
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/container"
+                                    name="./firstMF">
+                                    <items jcr:primaryType="nt:unstructured">
+                                        <heading
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/textfield"
+                                            fieldLabel="Heading"
+                                            name="./heading"
+                                            required="{Boolean}true"/>
+                                        <pagelist
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                            composite="{Boolean}true"
+                                            fieldLabel="Page List">
+                                            <field
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                name="./secondMF">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <label
+                                                        jcr:primaryType="nt:unstructured"
+                                                        sling:resourceType="granite/ui/components/foundation/form/textfield"
+                                                        fieldLabel="Page Label"
+                                                        name="./label"
+                                                        required="{Boolean}false"/>
+                                                    <description
+                                                        jcr:primaryType="nt:unstructured"
+                                                        sling:resourceType="granite/ui/components/foundation/form/textfield"
+                                                        fieldLabel="Page Description"
+                                                        name="./pagedescription"
+                                                        required="{Boolean}false"
+                                                        rootPath="/content"/>
+                                                    <subpages
+                                                        jcr:primaryType="nt:unstructured"
+                                                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                        composite="{Boolean}true"
+                                                        fieldLabel="Sub Pages">
+                                                        <field
+                                                            jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                            name="./subpage">
+                                                            <items jcr:primaryType="nt:unstructured">
+                                                                <label
+                                                                    jcr:primaryType="nt:unstructured"
+                                                                    sling:resourceType="granite/ui/components/foundation/form/textfield"
+                                                                    fieldLabel="Sub Page Label"
+                                                                    name="./subpagelabel"
+                                                                    required="{Boolean}false"/>
+                                                                <url
+                                                                    jcr:primaryType="nt:unstructured"
+                                                                    sling:resourceType="granite/ui/components/foundation/form/pathbrowser"
+                                                                    fieldLabel="Sub Page URL"
+                                                                    name="./subpageurl"
+                                                                    required="{Boolean}false"
+                                                                    rootPath="/content"/>
+                                                                <subpagedescription
+                                                                    jcr:primaryType="nt:unstructured"
+                                                                    sling:resourceType="granite/ui/components/foundation/form/textfield"
+                                                                    fieldLabel="Sub Page Description"
+                                                                    name="./subpagedescription"
+                                                                    required="{Boolean}false"/>
+                                                            </items>
+                                                        </field>
+                                                    </subpages>
+                                                </items>
+                                            </field>
+                                        </pagelist>
+                                    </items>
+                                </field>
+                            </multifield>
+                        </items>
+                    </firstMF>
+                </items>
+            </column>
+        </items>
+    </content>
+</jcr:root>

@@ -1,0 +1,24 @@
+<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" />
+<sly data-sly-call="${clientlib.css @ categories='migration.textpromo'}" />
+<sly data-sly-use.textPromoObj="${'com.aem.migration.core.models.TextPromo'}">
+  <div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+        <div class="ibm-we-discover">
+          <p>${textPromoObj.promoLabel}</p>
+        </div>
+          <div class="about-ibm-link" data-wow-delay=".7s">
+            <p class="">
+              <a target="_self" href="https://www.ibm.com/in-en/about" class="" data-di-id="di-id-bb9a57b6-192bd791">
+                <span>${textPromoObj.promoButton}</span>
+                <svg focusable="false" class="ibm-duo-u--link-icon--arrow-right" preserveAspectRatio="xMidYMid meet"
+                  xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" aria-label="View this link"
+                  width="20" height="20" viewBox="0 0 20 20" slot="icon" data-di-rand="1672815836287">
+                  <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+                </svg>
+              </a>
+            </p>
+          </div>
+    </div>
+</div>
+</sly>

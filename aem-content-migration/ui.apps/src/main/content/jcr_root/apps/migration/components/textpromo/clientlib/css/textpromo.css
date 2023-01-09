@@ -1,0 +1,16 @@
+.ibm-we-discover p{
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 1.28572;
+    letter-spacing: 0;
+    font-size: calc(1.75rem + 0 * ((100vw - 20rem)/ 62));
+    color: #525252;
+
+}
+.about-ibm-link span{
+    color: #0f62fe;
+}
+.about-ibm-link svg{
+    margin-left: 0.5rem;
+    fill: #0f62fe;
+}

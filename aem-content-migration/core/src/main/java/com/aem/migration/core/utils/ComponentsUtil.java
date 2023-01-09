@@ -361,6 +361,34 @@ public class ComponentsUtil {
 
         return jArr;
     }
+    public static JsonArray createTextPromoComponent(Elements nodeName, Row row,ResourceResolverFactory resolverFactory) {
+        String cellProp = row.getCell(7).getStringCellValue();
+        String cellPropFixed = row.getCell(9).getStringCellValue();
+        String resType = row.getCell(5).getStringCellValue();
+        String[] convertedPropArray = cellProp.split(",");
+        Map<String, String> map = new HashMap<String, String>();
+        for (String s : convertedPropArray) {
+            String[] t = s.split("=");
+            map.put(t[0], t[1]);
+        }
+        JsonArray jArr = new JsonArray();
+        for (Element elc : nodeName) {
+            JsonObject jObj = new JsonObject();
+            jObj.addProperty("sling:resourceType", resType);
+            jObj.addProperty("componentContainer", cellPropFixed);
+            for (String s : map.keySet()) {
+                if (!elc.getElementsByTag(s).text().isEmpty()) {
+                    String source = elc.getElementsByTag(s).text();
+                    jObj.addProperty(map.get(s), source);
+                } else if (!elc.getElementsByAttribute(s).attr(s).isEmpty()) {
+                    String source = elc.getElementsByAttribute(s).attr(s);
+                    jObj.addProperty(map.get(s), source);
+                }
+            }
+            jArr.add(jObj);
+        }
+        return jArr;
+    }
 
     public static String getDamImagePath(String imageUrl, String damPath, String imagesPath,ResourceResolverFactory resolverFactory){
         String newFile="";

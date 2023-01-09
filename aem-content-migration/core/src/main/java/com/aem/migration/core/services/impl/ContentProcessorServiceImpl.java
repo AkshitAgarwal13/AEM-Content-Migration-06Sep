@@ -418,6 +418,12 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			jArr = ComponentsUtil.createPrimaryTabComponent(nodeName, row, resolverFactory);
 		}else if(resType.equalsIgnoreCase("migration/components/left-title")) {
 			jArr = ComponentsUtil.createLeftTitleComponent(nodeName, row);
+		}else if(resType.equalsIgnoreCase("migration/components/textpromo")) {
+			jArr = ComponentsUtil.createTextPromoComponent(nodeName, row,resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/footer")){
+			jArr = ComponentsUtil.createTextImageComponent(nodeName, row, resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/header")){
+			jArr = ComponentsUtil.createTextImageComponent(nodeName, row, resolverFactory);
 		}
 		return jArr;
 
