@@ -416,6 +416,8 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			jArr = ComponentsUtil.createSectionComponent(nodeName, row, resolverFactory);
 		}else if(resType.equalsIgnoreCase("migration/components/primarytab")) {
 			jArr = ComponentsUtil.createPrimaryTabComponent(nodeName, row, resolverFactory);
+		}else if(resType.equalsIgnoreCase("migration/components/left-title")) {
+			jArr = ComponentsUtil.createLeftTitleComponent(nodeName, row);
 		}
 		return jArr;
 

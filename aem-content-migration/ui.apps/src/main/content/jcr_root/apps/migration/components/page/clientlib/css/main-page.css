@@ -11,3 +11,10 @@ body {
 main.container {
     padding: 0  !important;
 }
+.textimage{
+display:inline-block;
+}
+.left-title{
+display:inline-block;
+float:left;
+}
