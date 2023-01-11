@@ -15,7 +15,6 @@
  */
 package com.aem.migration.core.models;
 
-;
 import lombok.Getter;
 import org.apache.sling.api.resource.Resource;
 
@@ -37,9 +36,18 @@ public class BannerModel {
     private String backgroundImage;
 
     @ValueMapValue @Getter
-    private String buttonLabel;
+    private String primaryButton;
 
     @ValueMapValue @Getter
-    private String buttonLink;
+    private String primaryButtonLink;
+
+    @ValueMapValue @Getter
+    private String secondaryButton;
+
+    @ValueMapValue @Getter
+    private String secondaryButtonLink;
+
+    @ValueMapValue @Getter
+    private String color;
 
 }

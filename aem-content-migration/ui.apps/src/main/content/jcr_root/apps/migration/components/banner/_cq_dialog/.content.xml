@@ -58,6 +58,23 @@
                                                 fieldDescription="Select Button Link"
                                                 fieldLabel="Button Link"
                                                 name="./buttonLink"/>
+                                            <color
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/foundation/form/select"
+                                                    fieldDescription="Select color of font"
+                                                    fieldLabel="Select Font Color"
+                                                    name="./color">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <black
+                                                            jcr:primaryType="nt:unstructured"
+                                                            text="black"
+                                                            value="ibm-textcolor-black-10"/>
+                                                    <gray
+                                                            jcr:primaryType="nt:unstructured"
+                                                            text="gray"
+                                                            value="ibm-textcolor-gray-10"/>
+                                                </items>
+                                            </color>
                                         </items>
                                     </column>
                                 </items>

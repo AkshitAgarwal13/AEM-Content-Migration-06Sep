@@ -6,26 +6,43 @@
             <div class="row">
                 <div class="col-sm-4 left-container-div">
                     <div class="trends-title-div">
-                        <span>${bannerObject.title}</span>
+                        <span class="${bannerObject.color =='ibm-textcolor-gray-10' ? 'ibm-textcolor-gray-10' : 'ibm-textcolor-black-10'}">${bannerObject.title}</span>
                     </div>
-
                     <div class="bottom-subtitle-div">
                         <div class="subtitle-text-container-div">
-                            <span class="subtitle-text">${bannerObject.description}</span>
+                            <span class="subtitle-text ${bannerObject.color =='ibm-textcolor-gray-10' ? 'ibm-textcolor-gray-10' : 'ibm-textcolor-black-10'}">${bannerObject.description}</span>
                         </div>
-
-                        <div class="ibm-duo-button-item">
+                        <div class="button-container">
+                        <div class="ibm-duo-button-item-solid">
                             <a target="_self"
-                               href="${bannerObject.buttonLink}"
+                               href="${bannerObject.primaryButtonLink}"
                                class=""
                                data-di-id="">
-                                ${bannerObject.buttonLabel}
+                                ${bannerObject.primaryButton}
                                 <svg focusable="false" class="ibm-duo-u--link-icon--arrow-right" preserveAspectRatio="xMidYMid meet"
                                      xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" aria-label="View this link" width="20"
                                      height="20" viewBox="0 0 20 20" slot="icon" data-di-res-id="20de831b-1241a579" data-di-rand="1672208274384">
                                     <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
                                 </svg>
                             </a>
+                        </div>
+                            <sly data-sly-test.secLink="${bannerObject.secondaryButton}" />
+                            <sly data-sly-test="${secLink}">
+                        <div class="ibm-duo-button-item-solid ibm-button-outline">
+                            <a target="_self"
+                               href="${bannerObject.secondaryButtonLink}"
+                               class=""
+                               data-di-id="">
+                                ${bannerObject.secondaryButton}
+                                <svg focusable="false" class="ibm-duo-u--link-icon--arrow-right" preserveAspectRatio="xMidYMid meet"
+                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" aria-label="View this link" width="20"
+                                     height="20" viewBox="0 0 20 20" slot="icon" data-di-res-id="20de831b-1241a579" data-di-rand="1672208274384">
+                                    <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                            </sly>
+                        </div>
                         </div>
                     </div>
                 </div>

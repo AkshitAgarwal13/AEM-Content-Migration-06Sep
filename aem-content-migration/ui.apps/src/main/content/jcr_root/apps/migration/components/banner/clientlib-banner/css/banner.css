@@ -33,35 +33,42 @@
     line-height: 1.4;
     letter-spacing: 0;
 }
-.ibm-duo-button-item a{
+.ibm-duo-button-item-solid a{
     color: #fff;
     text-decoration: none;
-    width: 200px;
+    width: 80%;
     padding-left: 20px;
 }
-.ibm-duo-button-item svg {
-    float: right;
+.ibm-duo-button-item-solid svg {
+    position: absolute;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+        right: 6%;
+        margin: auto;
+        text-align: center;
 }
 
-.ibm-duo-button-item{
+.ibm-duo-button-item-solid{
        width: 220px;
         min-width: 13.75rem;
         text-align: left;
         display: inline-flex;
 }
 
-.ibm-duo-button-item:active{
+.ibm-duo-button-item-solid:active{
     color: #fff;
         background-color: #002d9c;
         border-color: #002d9c;
         outline-color: #002d9c;
 }
-.ibm-duo-button-item:hover{
+.ibm-duo-button-item-solid:hover{
     background-color: #0354e9;
         border-color: #0354e9;
         outline-color: #0354e9;
 }
-.ibm-duo-button-item{
+.ibm-duo-button-item-solid{
     position: relative;
         outline: 0;
         cursor: pointer;
@@ -87,4 +94,26 @@
         background-color: #0062ff;
         border-color: #0062ff;
         outline-color: #0062ff;
+        float: left;
+        border-width: 1px;
+}
+.ibm-button-outline{
+    background-color: transparent !important;
+    color: #0062ff !important;
+    border: 1px solid #0062ff;
+    margin-left: 20px;
+}
+.ibm-button-outline a{
+    color: #0062ff !important;
+}
+.button-container{
+    width: 600px;
+}
+.ibm-textcolor-gray-10
+{
+color: #F4F4F4!important;
+}
+.ibm-textcolor-black-10
+{
+color: #262626!important;
 }
