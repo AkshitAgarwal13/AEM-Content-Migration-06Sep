@@ -9,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -286,13 +285,13 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 	 * @throws IOException
 	 */
 	@Override
-	public JsonArray getWPPagesList(String damPath, String configPath, String imagesPath,Map map) throws IOException {
+	public JsonArray getWPPagesList(String damPath, String configPath, String imagesPath) throws IOException {
 
-		return extractPageComponents(damPath, configPath,imagesPath,map);
+		return extractPageComponents(damPath, configPath,imagesPath);
 
 	}
 
-	public JsonArray extractPageComponents(String damPath, String configPath, String imagesPath, Map map) throws IOException {
+	public JsonArray extractPageComponents(String damPath, String configPath, String imagesPath) throws IOException {
 		WordPressPage wpPage = new WordPressPage();
 		JsonArray jArr = null;
 		if (damPath != null) {
@@ -300,20 +299,6 @@ public class ContentProcessorServiceImpl implements ContentProcessorService {
 			// String pageHTML = pageReader.toString();
 
 			Document html = Jsoup.connect(damPath).get();
-			String headerType = map.get("headerType").toString();
-			String footerType = map.get("footerType").toString();
-			String headerValue = map.get("headerValue").toString();
-			String footerValue = map.get("footerValue").toString();
-			if(headerType.equalsIgnoreCase("tag")){
-				html.select(headerValue).remove();
-			}else if(headerType.equalsIgnoreCase("class")){
-				html.getElementsByClass(headerValue).remove();
-			}
-			if(footerType.equalsIgnoreCase("tag")){
-				html.select(footerValue).remove();
-			}else if(footerType.equalsIgnoreCase("class")){
-				html.getElementsByClass(footerValue).remove();
-			}
 			Elements elements = html.getAllElements();
 			int counter = 0;
 			jArr = getHTMLElementsToMap(configPath, elements,damPath, imagesPath);

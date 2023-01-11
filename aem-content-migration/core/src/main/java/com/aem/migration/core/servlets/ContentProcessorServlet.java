@@ -59,20 +59,7 @@ public class ContentProcessorServlet extends SlingSafeMethodsServlet {
 		//String cmsVal = request.getParameter("cmsVal");
 		String configPath = request.getParameter("configPath");
 		String imagesPath = request.getParameter("imagesPath");
-		String headerType = request.getParameter("headerType");
-		String footerType = request.getParameter("footerType");
-		String headerValue = request.getParameter("headerValue");
-		String footerValue = request.getParameter("footerValue");
-		//String pageName = request.getParameter("pageName");
-		//List<AEMPage> aemPageList = new ArrayList<>();
-		Map map = new HashMap();
-		map.put("headerType",headerType);
-		map.put("headerValue",headerValue);
-		map.put("footerType",footerType);
-		map.put("footerValue",footerValue);
-
-		
-		JsonArray jsonArray = contentProcessor.getWPPagesList(damPath,configPath, imagesPath,map);
+		JsonArray jsonArray = contentProcessor.getWPPagesList(damPath,configPath, imagesPath);
 		//String curlScript = contentProcessor.getAEMPageCreateScript(jsonObject);
 		if(StringUtils.equals(request.getParameter("createPages"), "true")) {
 
